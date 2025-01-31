@@ -1,14 +1,186 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+    <style>
+      body {
+        background: rgb(121, 0, 255);
+        background: radial-gradient(
+          circle,
+          rgba(121, 0, 255, 1) 0%,
+          rgba(39, 44, 197, 1) 16%,
+          rgba(50, 63, 180, 1) 30%,
+          rgba(67, 91, 200, 1) 50%,
+          rgba(62, 110, 232, 1) 63%,
+          rgba(87, 141, 237, 1) 78%,
+          rgba(0, 206, 255, 1) 100%
+        );
+        color: white;
+      }
+      button {
+        background-color: #f3ff08;
+        color: black;
+        width: 130px;
+        height: 65px;
+      }
+      .tournament {
+        background-color: #f27272;
+      }
+    </style>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
-</head>
+  <body>
+    <center>
+      <img width="350" src="TetisLogo.png" /><br />
+      <p>Now with custom modes!</p>
+      <br /><br /><br />
+      <button onclick="startcustommode(-1,250,'classic',1,1,0,0)">
+        Play Classic</button
+      ><br /><br /><br /><br /><br />
+      <button
+        onclick="window.location.href = 'bonusselect.html'"
+        style="background-color: #a103fc; color: white"
+      >
+        Bonus Modes</button
+      ><br /><br /><br /><br /><br />
+      <button style="background-color: #a103fc; color: white">
+        Mode Editor<br />(coming soon)
+      </button>
+    </center>
+    <script>
+      function startcustommode(
+        time,
+        speed,
+        name,
+        lives,
+        multi,
+        pointpenalty,
+        timepenalty,
+        comp
+      ) {
+        sessionStorage.setItem(
+          "gdata",
+          JSON.stringify({
+            name: name,
+            time: time,
+            updateTimer: speed,
+            lives: lives,
+            multi: multi,
+            ppenalty: pointpenalty,
+            tpenalty: timepenalty,
+            colors: [
+            {
+              name: "tetis 2 option 1",
+              active: "#0D6D6A",
+              background: "#BCABAE",
+              trail: "#0877ff",
+              fallen: "#0F0F0F",
+              text: "white",
+            },
+            {
+              name: "tetis 2 option 2",
+              active: "#C492B1",
+              background: "#88D5FB",
+              trail: "#0877ff",
+              fallen: "#AF3B6E",
+              text: "white",
+            },
+            {
+              name: "tetis 2 option 3",
+              active: "#3D52D5",
+              background: "#3C3744",
+              trail: "#0877ff",
+              fallen: "#090C9B",
+              text: "white",
+            },
+              {
+                name: "tetis 1 v2.0",
+                active: "#fc0303",
+                background: "#039dfc",
+                trail: "#0877ff",
+                fallen: "#ababab",
+                text: "white",
+              },
+              {
+                name: "ocean",
+                active: "cyan",
+                background: "darkblue",
+                trail: "lightblue",
+                fallen: "grey",
+                textcolor: "white",
+              },
+              {
+                name: "blue light mode",
+                active: "cyan",
+                background: "white",
+                trail: "lightblue",
+                fallen: "grey",
+                text: "blue",
+              },
+              {
+                name: "ultra dark mode",
+                active: "darkgrey",
+                background: "black",
+                trail: "grey",
+                fallen: "lightgrey",
+                text: "white",
+              },
+              {
+                name: "matrix",
+                active: "green",
+                background: "black",
+                trail: "lime",
+                fallen: "darkgreen",
+                text: "white",
+              },
+              {
+                name: "blue dark mode",
+                active: "darkblue",
+                background: "black",
+                trail: "blue",
+                fallen: "grey",
+                text: "white",
+              },
+              {
+                name: "amogus",
+                active: "red",
+                background: "grey",
+                trail: "grey",
+                fallen: "white",
+                text: "white",
+              },
+              {
+                name: "tetis 1 v1.5",
+                active: "#105b66",
+                background: "#292929",
+                trail: "#283d40",
+                fallen: "#092529",
+                text: "white",
+              },
+            ],
+            blocks: [
+              { pattern: [true, false, true, true, true, false], width: 2 },
+              { pattern: [false, true, true, true, true, false], width: 3 },
+              { pattern: [true, true, true, true], width: 2 },
+              { pattern: [true, true, true, true], width: 1 },
+              { pattern: [true, false, false, true, true, true], width: 3 },
+              { pattern: [true, true, false, false, true, true], width: 3 },
+              { pattern: [false, false, true, true, true, true], width: 3 }
+            ],
+            enableMods: false,
+            tick: "",
+            onLoad: "",
+            onBlockFall: "",
+            onLineCleared: "",
+            onDeath: "",
+          })
+        );
 
-<body>
-
-</body>
-
+        sessionStorage.setItem("comp", comp);
+        window.location.href = "game.html";
+      }
+    </script>
+  </body>
 </html>

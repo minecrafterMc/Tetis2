@@ -28,31 +28,41 @@ function rotateMatrix(matrix, direction = 'clockwise') {
 
   return rotated;
 }
+function RandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+const timerElement = document.getElementById("timer");
+const moneyElement = document.getElementById("money");
+const menuElement = document.getElementById("menu");
+const LeftMenuElement = document.getElementById("menu-left");
+const RightMenuElement = document.getElementById("menu-right");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const board = [];
 class gameManager {
-  constructor(cellWidth, cellHeight, boardWidth, boardHeight, colorPalete) {
+  constructor(cellWidth, cellHeight, boardWidth, boardHeight, colorPaletes) {
     //capitalised members store information
 
     this.CellWidth = cellWidth;
     this.CellHeight = cellHeight;
     this.BoardWidth = boardWidth;
     this.BoardHeight = boardHeight;
-    this.ColorPalete = colorPalete;
+    this.ColorPaletes = colorPaletes;
     this.adjustCanvas();
     this.adjustBoardArray();
     this.drawBoard();
   }
   drawBoard() {
-    ctx.fillStyle = this.ColorPalete.background;
+    ctx.fillStyle = this.ColorPaletes[currentPalete].background;
     ctx.fillRect(
       0,
       0,
       this.CellWidth * this.BoardWidth,
       this.CellHeight * this.BoardHeight
     );
-    ctx.fillStyle = this.ColorPalete.fallen;
+    ctx.fillStyle = this.ColorPaletes[currentPalete].fallen;
     for (let i = 0; i < board.length; i++) {
       for (let j = 0; j < board[i].length; j++) {
         if (board[i][j] == 1) {
@@ -91,7 +101,7 @@ class gameManager {
   }
   detectFullRow() {
     let full = true;
-    for (let i = 0; i < this.boardHeight; i++) {
+    main: for (let i = 0; i < this.boardHeight; i++) {
       full = true;
       for (let j = 0; j < this.boardWidth; j++) {
         if (board[j][i] == 0) {
@@ -100,14 +110,25 @@ class gameManager {
       }
       if (full) {
         for (let j = 0; j < this.boardWidth; j++) {
-          for (let k = 0; k < this.boardHeight - (this.boardHeight - i); k++) {
-            board[j][i - k] = board[j][i - 1 - k];
-            board[j][i - 1 - k] = 0;
-          }
+            board[j][i] = 0;
+        }
+        break main;
+      }
+      full = true;
+      for (let j = 0; j < this.boardWidth; j++) {
+        if (board[j][i] == 1) {
+          full = false;
+        }
+      }
+      if (full) {
+        for (let j = 0; j < this.boardWidth; j++) {
+            board[j][i] = board[j][i-1];
+            board[j][i - 1] = 0;
         }
       }
     }
   }
+  
   set boardWidth(value) {
     this.BoardWidth = value;
     this.adjustBoardArray();
@@ -153,7 +174,7 @@ class Cell {
     this.onFall = onFall;
   }
   draw() {
-    ctx.fillStyle = this.game.ColorPalete.active;
+    ctx.fillStyle = this.game.ColorPaletes[currentPalete].active;
     ctx.fillRect(this.X, this.Y, this.game.CellWidth, this.game.CellHeight);
   }
   move(x, y) {
@@ -302,7 +323,7 @@ class Shape {
       if (
         board[this.originX + (i % newWidth)][
           this.originY + Math.floor(i / newWidth)
-        ] == 1
+        ] == 1 || this.originY + Math.floor(i / newWidth) >= this.game.boardHeight
       ) {
         canRotate = false;
       }
@@ -314,6 +335,47 @@ class Shape {
         this.originX,
         this.originY
       );
+    }
+  }
+}
+class Item{
+  constructor(name, description, price, cooldown, onActivate){
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.cooldown = cooldown;
+    this.onActivate = onActivate;
+  }
+  buy(){
+    if (money >= this.price){
+      money -= this.price;
+      inventory.push(this);
+      return {success: true, message: "Item bought"};
+    }
+    else{
+      return {success: false, message: "Not enough money"};
+    }
+  }
+}
+class Ability{
+  constructor(name, description, price, cooldown, onBuy, onActivate, registry){
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.cooldown = cooldown;
+    this.onActivate = onActivate;
+    this.onBuy = onBuy;
+    this.registry = registry;
+  }
+  buy(){
+    if (money >= this.price){
+      money -= this.price;
+      this.onBuy();
+      AbilityRegistries[this.registry].push(this);
+      return {success: true, message: "Ability bought"};
+    }
+    else{
+      return {success: false, message: "Not enough money"};
     }
   }
 }
