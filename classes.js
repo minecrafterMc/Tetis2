@@ -1,0 +1,259 @@
+//chatgpt's code for rotatung a 2d array
+function rotateMatrix(matrix) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+    
+    let transposed = Array.from({ length: cols }, () => Array(rows).fill(0));
+    
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            transposed[j][rows - 1 - i] = matrix[i][j];
+        }
+    }
+
+    return transposed;
+}
+function rotateMatrixCounterclockwise(matrix) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+
+    let transposed = Array.from({ length: cols }, () => Array(rows).fill(0));
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            transposed[cols - 1 - j][i] = matrix[i][j];
+        }
+    }
+
+    return transposed;
+}
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const board = [];
+class gameManager {
+  constructor(cellWidth, cellHeight, boardWidth, boardHeight, colorPalete) {
+    //capitalised members store information
+
+    this.CellWidth = cellWidth;
+    this.CellHeight = cellHeight;
+    this.BoardWidth = boardWidth;
+    this.BoardHeight = boardHeight;
+    this.ColorPalete = colorPalete;
+    this.adjustCanvas();
+    this.adjustBoardArray();
+    this.drawBoard();
+  }
+  drawBoard() {
+    ctx.fillStyle = this.ColorPalete.background;
+    ctx.fillRect(0, 0, this.CellWidth * this.BoardWidth, this.CellHeight * this.BoardHeight);
+    ctx.fillStyle = this.ColorPalete.fallen;
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (board[i][j] == 1) {
+          ctx.fillRect(i * this.CellWidth, j * this.CellHeight, this.CellWidth, this.CellHeight);
+        }
+      }
+
+    }
+  }
+  adjustCanvas() {
+    canvas.width = this.CellWidth * this.BoardWidth;
+    canvas.height = this.CellHeight * this.BoardHeight;
+  }
+  adjustBoardArray() {
+    for (let i = board.length; i < this.BoardWidth; i++) {
+      board[i] = [];
+    }
+    for (let i = 0; i < this.BoardWidth; i++) {
+      for (let j = board[i].length; j < this.BoardHeight; j++) {
+        board[i][j] = 0;
+      }
+      board[i].length = this.BoardHeight;
+    }
+    board.length = this.BoardWidth;
+  }
+  resetBoard() {
+    for (let i = 0; i < this.BoardWidth; i++) {
+      for (let j = 0; j < this.BoardHeight; j++) {
+        board[i][j] = 0;
+      }
+    }
+  }
+  detectFullRow(){
+    let full = true;
+    for (let i = 0;i<this.boardHeight;i++){
+      full = true;
+      for (let j = 0;j<this.boardWidth;j++){
+        if (board[j][i] == 0){
+          full = false;
+        }
+      }
+      if (full){
+        for (let j = 0;j<this.boardWidth;j++){
+          for (let k = 0;k<this.boardHeight-(this.boardHeight-i);k++){
+          board[j][i-k] = board[j][i-1-k];
+          board[j][i-1-k] = 0;
+          }
+        }
+      }
+    }
+  }
+  set boardWidth(value) {
+    this.BoardWidth = value;
+    this.adjustBoardArray();
+    this.adjustCanvas();
+    this.drawBoard();
+  }
+  set boardHeight(value) {
+    this.BoardHeight = value;
+    this.adjustBoardArray();
+    this.adjustCanvas();
+    this.drawBoard();
+  }
+  set cellWidth(value) {
+    this.CellWidth = value;
+    this.adjustCanvas();
+    this.drawBoard();
+  }
+  set cellHeight(value) {
+    this.CellHeight = value;
+    this.adjustCanvas();
+    this.drawBoard();
+  }
+  get boardWidth() {
+    return this.BoardWidth;
+  }
+  get boardHeight() {
+    return this.BoardHeight;
+  }
+  get cellWidth() {
+    return this.CellWidth;
+  }
+  get cellHeight() {
+    return this.CellHeight;
+  }
+}
+class Cell {
+  constructor(x, y, onFall, GameManager) {
+    this.bx = x;
+    this.by = y;
+    this.X = x * GameManager.CellWidth;
+    this.Y = y * GameManager.CellHeight;
+    this.game = GameManager;
+    this.onFall = onFall;
+  }
+  draw() {
+    ctx.fillStyle = this.game.ColorPalete.active;
+    ctx.fillRect(this.X, this.Y, this.game.CellWidth, this.game.CellHeight);
+  }
+  move(x, y) {
+    let canMoveX = false;
+    let canMoveY = false;
+    if (this.bx < this.game.BoardWidth - 1) {
+      this.bx += x;
+      this.X = this.bx * this.game.CellWidth;
+      canMoveX = true;
+    }
+    if (this.by < this.game.BoardHeight - 1 && board[this.bx][this.by + 1] == 0) {
+      this.by += y;
+      this.Y = this.by * this.game.CellHeight;
+      canMoveY = true;
+    }
+    else {
+      this.die();
+    }
+    return { x: canMoveX, y: canMoveY };
+  }
+  tryMove(x, y) {
+    let canMoveX = false;
+    let canMoveY = false;
+    if (this.bx+x != this.game.boardWidth && this.bx+x != -1 && board[this.bx+x][this.by] == 0) {
+      canMoveX = true;
+    }
+    if (this.by < this.game.BoardHeight - 1 && board[this.bx][this.by + y] == 0) {
+      canMoveY = true;
+    }
+    return { x: canMoveX, y: canMoveY };
+  }
+  forceMove(x, y) {
+    this.bx += x;
+    this.X = this.bx * this.game.CellWidth;
+    this.by += y;
+    this.Y = this.by * this.game.CellHeight;
+
+  }
+  die() {
+    board[this.bx][this.by] = 1;
+    this.onFall();
+  }
+  set x(value) {
+    this.bx = value;
+    this.X = this.bx * this.game.cellWidth;
+  }
+  set y(value) {
+    this.by = value;
+    this.Y = this.by * this.game.cellHeight;
+  }
+  get x() {
+    return this.X;
+  }
+  get y() {
+    return this.Y;
+  }
+}
+class Shape {
+  constructor(shape, x, y, onFall, gameManager) {
+    this.shape = shape;
+    this.shape.pattern2d = [];
+    for (let i = 0;i<this.shape.width;i++){
+      this.shape.pattern2d.push([]);
+    }
+    for (let i = 0;i<shape.pattern.length;i++){
+      this.shape.pattern2d[Math.floor(i/this.shape.width)][i%this.shape.width] = this.shape.pattern[i];
+    }
+    this.game = game;
+    this.onFall = onFall;
+    this.cells = [];
+    for (let i = 0; i < shape.pattern.length; i++) {
+      if (this.shape.pattern[i]) {
+        this.cells.push(new Cell(x + i % this.shape.width,y + Math.floor(i / this.shape.width), () => {
+          for (let i = 0; i < this.cells.length; i++) {
+            board[this.cells[i].bx][this.cells[i].by] = 1;
+          }
+          this.onFall();
+        }, this.game));
+      }
+    }
+  }
+  draw() {
+    for (let i = 0; i < this.cells.length; i++) {
+      this.cells[i].draw();
+    }
+  }
+  move(x, y) {
+    let canMove = true;
+    for (let i = 0; i < this.cells.length; i++) {
+      if (!this.cells[i].tryMove(x, y).x) {
+        canMove = false;
+      }
+      if(!this.cells[i].tryMove(x,y).y){
+        this.cells[i].die();
+      }
+    }
+    if (canMove) {
+      for (let i = 0; i < this.cells.length; i++) {
+        this.cells[i].forceMove(x, y);
+      }
+    }
+  }
+  rotate(side){
+    let newPattern = [];
+    let new2dPattern = rotateMatrix(this.shape.pattern2d);
+    for (let i = 0;i<this.shape.pattern;i++){
+      newPattern = [...newPattern,...new2dPattern[i%new2dPattern[i].length]]
+    }
+    console.log(newPattern);
+    console.log(new2dPattern);
+  }
+}
