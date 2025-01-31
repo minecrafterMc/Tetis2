@@ -75,6 +75,8 @@ class gameManager {
         }
       }
     }
+    document.body.style.backgroundColor = this.ColorPaletes[currentPalete].background;
+    document.body.style.color = this.ColorPaletes[currentPalete].text;
   }
   adjustCanvas() {
     canvas.width = this.CellWidth * this.BoardWidth;
@@ -112,6 +114,7 @@ class gameManager {
         for (let j = 0; j < this.boardWidth; j++) {
             board[j][i] = 0;
         }
+        money+=income;
         break main;
       }
       full = true;
@@ -345,10 +348,13 @@ class Item{
     this.price = price;
     this.cooldown = cooldown;
     this.onActivate = onActivate;
+    this.owned = false;
+    this.lastUsed = -5;
   }
   buy(){
     if (money >= this.price){
       money -= this.price;
+      this.owned = true;
       inventory.push(this);
       return {success: true, message: "Item bought"};
     }
@@ -366,6 +372,9 @@ class Ability{
     this.onActivate = onActivate;
     this.onBuy = onBuy;
     this.registry = registry;
+    this.owned = false;
+    this.lastUsed = -5;
+
   }
   buy(){
     if (money >= this.price){
