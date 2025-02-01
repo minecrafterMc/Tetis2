@@ -334,7 +334,7 @@ class Shape {
     if (canRotate) {
       this.onFall(
         "rotate",
-        { pattern: newPattern, width: newWidth },
+        { pattern: newPattern, width: newWidth, name: this.shape.name },
         this.originX,
         this.originY
       );
@@ -342,7 +342,7 @@ class Shape {
   }
 }
 class Item{
-  constructor(name, description, price, cooldown, onActivate){
+  constructor(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText){
     this.name = name;
     this.description = description;
     this.price = price;
@@ -350,12 +350,38 @@ class Item{
     this.onActivate = onActivate;
     this.owned = false;
     this.lastUsed = -5;
+    this.onBuy = onBuy;
+    this.customInventoryText = customInventoryText;
+    this.id = id;
   }
   buy(){
     if (money >= this.price){
       money -= this.price;
       this.owned = true;
-      inventory.push(this);
+      inventory[this.id] = this;
+      this.onBuy();
+      return {success: true, message: "Item bought"};
+    }
+    else{
+      return {success: false, message: "Not enough money"};
+    }
+  }
+}
+class ItemCountable extends Item{
+  constructor(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText){
+    super(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText);
+    this.count = 0;
+  }
+  buy(){
+    console.log(this);
+    if (money >= this.price){
+      money -= this.price;
+      this.owned = true;
+      this.onBuy();
+      if (inventory[this.id] == undefined){
+        inventory[this.id] = this;
+      }
+      inventory[this.id].count++;
       return {success: true, message: "Item bought"};
     }
     else{
@@ -364,7 +390,7 @@ class Item{
   }
 }
 class Ability{
-  constructor(name, description, price, cooldown, onBuy, onActivate, registry){
+  constructor(id,name, description, price, cooldown, onBuy, onActivate, registry){
     this.name = name;
     this.description = description;
     this.price = price;
@@ -374,13 +400,32 @@ class Ability{
     this.registry = registry;
     this.owned = false;
     this.lastUsed = -5;
+    this.id = id;
 
   }
   buy(){
     if (money >= this.price){
       money -= this.price;
       this.onBuy();
-      AbilityRegistries[this.registry].push(this);
+      AbilityRegistries[this.registry][this.id] = this;
+      return {success: true, message: "Ability bought"};
+    }
+    else{
+      return {success: false, message: "Not enough money"};
+    }
+  }
+}
+class AbilityCountable extends Ability{
+  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry){
+    super(id,name, description, price, cooldown, onBuy, onActivate, registry);
+    this.count = 0;
+  }
+  buy(){
+    if (money >= this.price){
+      money -= this.price;
+      this.onBuy();
+      AbilityRegistries[this.registry][this.id] = this;
+      AbilityRegistries[this.registry][this.id].count++;
       return {success: true, message: "Ability bought"};
     }
     else{
