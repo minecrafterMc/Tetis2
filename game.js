@@ -14,11 +14,64 @@ const AbilityRegistries = {
   passive: [],
 };
 const Items = [
-  new Item(0,"clear","clears the board",10,10,()=>{game.resetBoard()},()=>{},()=>{return ""}),
-  new Ability(0,"increase income","adds a new column to the board and adds 1 to your income",10,10,()=>{game.boardWidth += 1;income+=1;this.owned = false;},()=>{},AbilityRegistries.passive),
-  new Ability(0,"expand timer","makes the time limit longer by 10 seconds",5,10,()=>{timeLimit += 10;this.owned = false;},()=>{},AbilityRegistries.passive),
-  new ItemCountable(1,"Gold","Gold is a safe investment. it doesen't disapear after death, and can be sold for half of its price",2,0,()=>{money += 1;},()=>{},()=>{return ""}),
-]
+
+
+  new Item(
+    0,
+    "clear",
+    "clears the board",
+    10,
+    10,
+    () => {
+      game.resetBoard();
+    },
+    () => {},
+    () => {
+      return "";
+    }
+  ),
+  new Ability(
+    0,
+    "increase income",
+    "adds a new column to the board and adds 1 to your income",
+    10,
+    10,
+    () => {
+      game.boardWidth += 1;
+      income += 1;
+      this.owned = false;
+    },
+    () => {},
+    AbilityRegistries.passive
+  ),
+  new Ability(
+    0,
+    "expand timer",
+    "makes the time limit longer by 10 seconds",
+    5,
+    10,
+    () => {
+      timeLimit += 10;
+      this.owned = false;
+    },
+    () => {},
+    AbilityRegistries.passive
+  ),
+  new ItemCountable(
+    1,
+    "Gold",
+    "Gold is a safe investment. it doesen't disapear after death, and can be sold for half of its price",
+    2,
+    0,
+    () => {
+      money += 1;
+    },
+    () => {},
+    () => {
+      return "";
+    }
+  ),
+];
 var frame = 0;
 var timer = 0;
 var money = 0;
@@ -32,23 +85,17 @@ var menu = 0;
 var shopOpen = false;
 var menuChoices = [];
 var shapeSpawnPosition = 0;
-var inventory = {0:Items[0]};
+var inventory = { 0: Items[0] };
 var inventoryIterable = [];
 
-function updateInventoryIterable(){
+function updateInventoryIterable() {
   inventoryIterable = [];
   let keys = Object.keys(inventory);
   for (let i = 0; i < keys.length; i++) {
     inventoryIterable.push(inventory[keys[i]]);
   }
 }
-var cell1 = new Shape(
-  blocks[0],
-  0,
-  0,
-  generateShape,
-  game
-);
+var cell1 = new Shape(blocks[0], 0, 0, generateShape, game);
 cell1.draw();
 function generateShape(reason) {
   if (reason == "fall") {
@@ -68,7 +115,6 @@ function generateShape(reason) {
       game
     );
   }
-
 }
 function update() {
   if (!pause) {
@@ -87,12 +133,12 @@ function update() {
         pause = true;
         menuOpen = true;
         shopOpen = true;
-        switchMenu(); 
+        switchMenu();
       }
     }
     cell1.draw();
-    
-    moneyElement.innerHTML = money+"$";
+
+    moneyElement.innerHTML = money + "$";
     game.detectFullRow();
 
     frame++;
@@ -142,12 +188,11 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("keydown", (event) => {
   if (event.key == "e") {
     if (!menuOpen) {
-    pause = !pause;
-    menuOpen = !menuOpen;
-    menu = 0;
-    switchMenu();
-    }
-    else {
+      pause = !pause;
+      menuOpen = !menuOpen;
+      menu = 0;
+      switchMenu();
+    } else {
       navigateMenu("select");
     }
   }
@@ -166,75 +211,133 @@ function BuildRightMenu(menuId) {
   updateInventoryIterable();
   RightMenuElement.innerHTML = "";
   if (menuId == 0) {
-    
-      RightMenuElement.innerHTML = "<h1>wave: " + wave + "<br>money: " + money+"$</h1><br>income: " +income + "$";
-    
+    RightMenuElement.innerHTML =
+      "<h1>wave: " +
+      wave +
+      "<br>money: " +
+      money +
+      "$</h1><br>income: " +
+      income +
+      "$";
   }
   if (menuId == 1) {
-    
     RightMenuElement.innerHTML = "<h1>Access your items</h1><br>";
-  
-}
-if (menuId == 2) {
-    
-  RightMenuElement.innerHTML = "<h1>Shop for items<br><br>" + (shopOpen ? "Money: " + money +"$</h1>" : "You can access the shop between waves</h1>");
-
-}
-if (menuId == 3) {
-    
-  RightMenuElement.innerHTML = "<h1>Change your color palete<br><br>additional paletes available in the shop</h1>";
-
-}
-if (menuId == 4) {
-    
-  RightMenuElement.innerHTML = "<h1>Back</h1>";
-
-}
-if (menuId == 5) {
-      
-    RightMenuElement.innerHTML = "<h1 class='colorDisplay' style='background-color: "+paletes[menuPointer-1].active+"; color: "+paletes[menuPointer-1].text+"'>Shape color</h1><br>";
-    RightMenuElement.innerHTML += "<h1 class='colorDisplay' style='background-color: "+paletes[menuPointer-1].background+"; color: "+paletes[menuPointer-1].text+"'>Background color</h1><br>";
-    RightMenuElement.innerHTML += "<h1 class='colorDisplay' style='background-color: "+paletes[menuPointer-1].fallen+"; color: "+paletes[menuPointer-1].text+"'>fallen blocks</h1><br>";
-}
-if (menuId == 6) {
-
-  RightMenuElement.innerHTML = "<h1 class='itemDisplay'>"+inventoryIterable[menuPointer-1].name+"</h1><br>";
-  RightMenuElement.innerHTML += "<h1 class='itemDisplay'>"+inventoryIterable[menuPointer-1].description+"</h1><br>";
-  if (inventoryIterable[menuPointer-1].cooldown > 0){
-    RightMenuElement.innerHTML += "<h1 class='itemDisplay'>Cooldown: "+(timer- inventory[menuPointer-1].lastUsed < inventory[menuPointer-1].cooldown ? inventory[menuPointer-1].cooldown - (timer - inventory[menuPointer-1].lastUsed) : "0")+"</h1><br>";
   }
-  if (inventoryIterable[menuPointer-1] instanceof ItemCountable){
-    RightMenuElement.innerHTML += "<h1 class='itemDisplay'>Owned: "+inventoryIterable[menuPointer-1].count+"</h1><br>";
+  if (menuId == 2) {
+    RightMenuElement.innerHTML =
+      "<h1>Shop for items<br><br>" +
+      (shopOpen
+        ? "Money: " + money + "$</h1>"
+        : "You can access the shop between waves</h1>");
   }
-  RightMenuElement.innerHTML += "<h1 class='itemDisplay'>"+inventoryIterable[menuPointer-1].customInventoryText()+"</h1><br>";
-}
-if (menuId == 7) {
-
-  RightMenuElement.innerHTML = "<h1 class='itemDisplay'>Money:"+money+"$</h1><br><br><br>";
-  RightMenuElement.innerHTML += "<h1 class='itemDisplay'>"+Items[menuPointer-1].name+"</h1><br>";
-  RightMenuElement.innerHTML += "<h1 class='itemDisplay'>"+Items[menuPointer-1].description+"</h1><br>";
-  RightMenuElement.innerHTML += "<h1 class='itemDisplay'>Cooldown: "+Items[menuPointer-1].cooldown+"</h1><br>";
-  RightMenuElement.innerHTML += "<h1 class='itemDisplay'>Price: "+Items[menuPointer-1].price+"$</h1><br>";
-  if (Items[menuPointer-1] instanceof ItemCountable){
-    RightMenuElement.innerHTML += "<h1 class='itemDisplay'>Owned: "+Items[menuPointer-1].count+"</h1><br>";
+  if (menuId == 3) {
+    RightMenuElement.innerHTML =
+      "<h1>Change your color palete<br><br>additional paletes available in the shop</h1>";
   }
-}
+  if (menuId == 5) {
+    RightMenuElement.innerHTML = "<h1>Back</h1>";
+  }
+  if (menuId == 6) {
+    RightMenuElement.innerHTML =
+      "<h1 class='colorDisplay' style='background-color: " +
+      paletes[menuPointer - 1].active +
+      "; color: " +
+      paletes[menuPointer - 1].text +
+      "'>Shape color</h1><br>";
+    RightMenuElement.innerHTML +=
+      "<h1 class='colorDisplay' style='background-color: " +
+      paletes[menuPointer - 1].background +
+      "; color: " +
+      paletes[menuPointer - 1].text +
+      "'>Background color</h1><br>";
+    RightMenuElement.innerHTML +=
+      "<h1 class='colorDisplay' style='background-color: " +
+      paletes[menuPointer - 1].fallen +
+      "; color: " +
+      paletes[menuPointer - 1].text +
+      "'>fallen blocks</h1><br>";
+  }
+  if (menuId == 7) {
+    RightMenuElement.innerHTML =
+      "<h1 class='itemDisplay'>" +
+      inventoryIterable[menuPointer - 1].name +
+      "</h1><br>";
+    RightMenuElement.innerHTML +=
+      "<h1 class='itemDisplay'>" +
+      inventoryIterable[menuPointer - 1].description +
+      "</h1><br>";
+    if (inventoryIterable[menuPointer - 1].cooldown > 0) {
+      RightMenuElement.innerHTML +=
+        "<h1 class='itemDisplay'>Cooldown: " +
+        (timer - inventory[menuPointer - 1].lastUsed <
+        inventory[menuPointer - 1].cooldown
+          ? inventory[menuPointer - 1].cooldown -
+            (timer - inventory[menuPointer - 1].lastUsed)
+          : "0") +
+        "</h1><br>";
+    }
+    if (inventoryIterable[menuPointer - 1] instanceof ItemCountable) {
+      RightMenuElement.innerHTML +=
+        "<h1 class='itemDisplay'>Owned: " +
+        inventoryIterable[menuPointer - 1].count +
+        "</h1><br>";
+    }
+    RightMenuElement.innerHTML +=
+      "<h1 class='itemDisplay'>" +
+      inventoryIterable[menuPointer - 1].customInventoryText() +
+      "</h1><br>";
+  }
+  if (menuId == 8) {
+    RightMenuElement.innerHTML =
+      "<h1 class='itemDisplay'>Money:" + money + "$</h1><br><br><br>";
+    RightMenuElement.innerHTML +=
+      "<h1 class='itemDisplay'>" + Items[menuPointer - 1].name + "</h1><br>";
+    RightMenuElement.innerHTML +=
+      "<h1 class='itemDisplay'>" +
+      Items[menuPointer - 1].description +
+      "</h1><br>";
+    RightMenuElement.innerHTML +=
+      "<h1 class='itemDisplay'>Cooldown: " +
+      Items[menuPointer - 1].cooldown +
+      "</h1><br>";
+    RightMenuElement.innerHTML +=
+      "<h1 class='itemDisplay'>Price: " +
+      Items[menuPointer - 1].price +
+      "$</h1><br>";
+    if (Items[menuPointer - 1] instanceof ItemCountable) {
+      RightMenuElement.innerHTML +=
+        "<h1 class='itemDisplay'>Owned: " +
+        Items[menuPointer - 1].count +
+        "</h1><br>";
+    }
+  }
 }
 function BuildMenu() {
   updateInventoryIterable();
   LeftMenuElement.innerHTML = "";
   if (menu == 0) {
-    menuChoices = [[shopOpen ? "Start next wave" : "Resume"], ["Inventory"], ["Shop"], ["colors"]];
-    let rightMenus = [0, 1, 2, 3];
+    menuChoices = [
+      [shopOpen ? "Start next wave" : "Resume"],
+      ["Inventory"],
+      ["Shop"],
+      ["colors"],
+      ["Quota"],
+    ];
+    let rightMenus = [0, 1, 2, 3,4];
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i].push(document.createElement("div"));
-      menuChoices[i][1].className = i==2 ? (shopOpen ? "menu-choice" : "menu-choice-inactive") : "menu-choice";
+      menuChoices[i][1].className =
+        i == 2
+          ? shopOpen
+            ? "menu-choice"
+            : "menu-choice-inactive"
+          : "menu-choice";
       menuChoices[i].push(() => {
         if (i == 0) {
           menuOpen = false;
           pause = false;
           switchMenu();
-          if(shopOpen) {
+          if (shopOpen) {
             shopOpen = false;
             game.resetBoard();
             switchMenu();
@@ -243,70 +346,114 @@ function BuildMenu() {
         menu = i;
         switchMenu();
       });
-      menuChoices[i].push(i==2 ? shopOpen : true);
+      menuChoices[i].push(i == 2 ? shopOpen : true);
       menuChoices[i][1].innerHTML = menuChoices[i][0];
       menuChoices[i][4] = rightMenus[i];
       LeftMenuElement.appendChild(menuChoices[i][1]);
     }
-  }
-  else if(menu == 1) {
-    menuChoices = [["Back",document.createElement("div"),()=>{menu = 0;switchMenu();},true,4]];
+  } else if (menu == 1) {
+    menuChoices = [
+      [
+        "Back",
+        document.createElement("div"),
+        () => {
+          menu = 0;
+          switchMenu();
+        },
+        true,
+        5,
+      ],
+    ];
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
     for (let i = 0; i < inventoryIterable.length; i++) {
       menuChoices.push([inventoryIterable[i].name]);
-      menuChoices[i+1].push(document.createElement("div"));
-      menuChoices[i+1][1].className = shopOpen ? "menu-choice-inactive" : "menu-choice";
-      menuChoices[i+1].push(() => {
+      menuChoices[i + 1].push(document.createElement("div"));
+      menuChoices[i + 1][1].className = shopOpen
+        ? "menu-choice-inactive"
+        : "menu-choice";
+      menuChoices[i + 1].push(() => {
         if (!shopOpen) {
-          if (inventoryIterable[i].lastUsed + inventoryIterable[i].cooldown <= timer && inventoryIterable[i] instanceof ItemCountable ? inventoryIterable[i].count > 0 : true) {
-          inventoryIterable[i].onActivate();
-          inventoryIterable[i].lastUsed = timer;
-          if(inventoryIterable[i] instanceof ItemCountable){
-            inventory[inventoryIterable[i].id].count -= 1;
+          if (
+            inventoryIterable[i].lastUsed + inventoryIterable[i].cooldown <=
+              timer && inventoryIterable[i] instanceof ItemCountable
+              ? inventoryIterable[i].count > 0
+              : true
+          ) {
+            inventoryIterable[i].onActivate();
+            inventoryIterable[i].lastUsed = timer;
+            if (inventoryIterable[i] instanceof ItemCountable) {
+              inventory[inventoryIterable[i].id].count -= 1;
+            }
+            pause = false;
+            menuOpen = false;
+            switchMenu();
           }
-          pause = false;
-          menuOpen = false;
-          switchMenu();
-        } 
         }
       });
-      menuChoices[i+1].push(!shopOpen);
-      menuChoices[i+1][1].innerHTML = menuChoices[i+1][0];
-      menuChoices[i+1][4] = 6;
-      LeftMenuElement.appendChild(menuChoices[i+1][1]);
+      menuChoices[i + 1].push(!shopOpen);
+      menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
+      menuChoices[i + 1][4] = 7;
+      LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
-  }
-  else if(menu == 2){
-    menuChoices = [["Back",document.createElement("div"),()=>{menu = 0;switchMenu();},true,4]];
+  } else if (menu == 2) {
+    menuChoices = [
+      [
+        "Back",
+        document.createElement("div"),
+        () => {
+          menu = 0;
+          switchMenu();
+        },
+        true,
+        5,
+      ],
+    ];
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
     for (let i = 0; i < Items.length; i++) {
-      menuChoices.push([Items[i].name + (Items[i].owned && !Items[i] instanceof ItemCountable ? " (SOLD OUT)" : " ("+Items[i].price+"$)")]);
-      menuChoices[i+1].push(document.createElement("div"));
-      menuChoices[i+1][1].className =  "menu-choice";
-      menuChoices[i+1].push(() => {
+      menuChoices.push([
+        Items[i].name +
+          (Items[i].owned && !Items[i] instanceof ItemCountable
+            ? " (SOLD OUT)"
+            : " (" + Items[i].price + "$)"),
+      ]);
+      menuChoices[i + 1].push(document.createElement("div"));
+      menuChoices[i + 1][1].className = "menu-choice";
+      menuChoices[i + 1].push(() => {
         Items[i].buy();
-        BuildRightMenu(7);
+        BuildRightMenu(8);
       });
-      menuChoices[i+1].push(Items[i] instanceof ItemCountable ? true : !Items[i].owned);
-      menuChoices[i+1][1].innerHTML = menuChoices[i+1][0];
-      menuChoices[i+1][4] = 7;
-      LeftMenuElement.appendChild(menuChoices[i+1][1]);
+      menuChoices[i + 1].push(
+        Items[i] instanceof ItemCountable ? true : !Items[i].owned
+      );
+      menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
+      menuChoices[i + 1][4] = 8;
+      LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
-  }
-  else if(menu == 3){
-    menuChoices = [["Back",document.createElement("div"),()=>{menu = 0;switchMenu();},true,4]];
+  } else if (menu == 3) {
+    menuChoices = [
+      [
+        "Back",
+        document.createElement("div"),
+        () => {
+          menu = 0;
+          switchMenu();
+        },
+        true,
+        5,
+      ],
+    ];
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
     for (let i = 0; i < paletes.length; i++) {
       menuChoices.push([paletes[i].name]);
-      menuChoices[i+1].push(document.createElement("div"));
-      menuChoices[i+1][1].className =  "menu-choice";
-      menuChoices[i+1].push(() => {
+      menuChoices[i + 1].push(document.createElement("div"));
+      menuChoices[i + 1][1].className = "menu-choice";
+      menuChoices[i + 1].push(() => {
         if (!shopOpen) {
           currentPalete = i;
           pause = false;
@@ -314,12 +461,45 @@ function BuildMenu() {
           switchMenu();
         }
       });
-      menuChoices[i+1].push(!shopOpen);
-      menuChoices[i+1][1].innerHTML = menuChoices[i+1][0];
-      menuChoices[i+1][4] = 5;
-      LeftMenuElement.appendChild(menuChoices[i+1][1]);
+      menuChoices[i + 1].push(!shopOpen);
+      menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
+      menuChoices[i + 1][4] = 6;
+      LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
-  }
+  } else if (menu == 4) {
+    menuChoices = [
+      [
+        "Back",
+        document.createElement("div"),
+        () => {
+          menu = 0;
+          switchMenu();
+        },
+        true,
+        5,
+      ],
+      [
+        "Info",
+        document.createElement("div"),
+        () => {
+          menu = 0;
+          switchMenu();
+        },
+        false,
+        9,
+      ]
+    ];
+    for (let i = 0; i < menuChoices.length; i++) {
+      menuChoices[i][1].innerHTML = menuChoices[i][0];
+      menuChoices[i][1].className =
+        i == 1
+          ? shopOpen
+            ? "menu-choice"
+            : "menu-choice-inactive"
+          : "menu-choice";
+      LeftMenuElement.appendChild(menuChoices[i][1]);
+    }
+    }
   menuChoices[menuPointer][1].id = "menu-selected";
 }
 function navigateMenu(action) {
@@ -331,10 +511,10 @@ function navigateMenu(action) {
     }
   }
   if (action == "down") {
-    if (menuPointer < menuChoices.length-1) {
-    menuChoices[menuPointer][1].id = "";
-    menuPointer++;
-    menuChoices[menuPointer][1].id = "menu-selected";
+    if (menuPointer < menuChoices.length - 1) {
+      menuChoices[menuPointer][1].id = "";
+      menuPointer++;
+      menuChoices[menuPointer][1].id = "menu-selected";
     }
   }
   if (action == "select") {
