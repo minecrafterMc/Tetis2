@@ -54,7 +54,7 @@ class gameManager {
     this.adjustBoardArray();
     this.drawBoard();
   }
-  drawBoard() {
+  drawBoard(thisBoard = board) {
     ctx.fillStyle = this.ColorPaletes[currentPalete].background;
     ctx.fillRect(
       0,
@@ -63,9 +63,15 @@ class gameManager {
       this.CellHeight * this.BoardHeight
     );
     ctx.fillStyle = this.ColorPaletes[currentPalete].fallen;
-    for (let i = 0; i < board.length; i++) {
-      for (let j = 0; j < board[i].length; j++) {
-        if (board[i][j] == 1) {
+    for (let i = 0; i < thisBoard.length; i++) {
+      for (let j = 0; j < thisBoard[i].length; j++) {
+        if (thisBoard[i][j] == 1 || thisBoard[i][j] == 2) {
+          if (thisBoard[i][j] == 1) {
+            ctx.fillStyle = this.ColorPaletes[currentPalete].fallen;
+          }
+          else if (thisBoard[i][j] == 2){
+            ctx.fillStyle = this.ColorPaletes[currentPalete].trail;
+          }
           ctx.fillRect(
             i * this.CellWidth,
             j * this.CellHeight,
@@ -228,6 +234,7 @@ class Cell {
     board[this.bx][this.by] = 1;
     this.onFall();
   }
+  
   set x(value) {
     this.bx = value;
     this.X = this.bx * this.game.cellWidth;
@@ -281,13 +288,31 @@ class Shape {
         );
       }
     }
-    this.game.drawBoard();
+    this.game.drawBoard(this.drawpreview());
     this.draw();
   }
   draw() {
     for (let i = 0; i < this.cells.length; i++) {
       this.cells[i].draw();
     }
+  }
+  drawpreview() {
+    let i = 0;
+    let newBoard = JSON.parse(JSON.stringify(board));
+    let found = false;
+    while (!found){
+      for (let j = 0; j < this.cells.length; j++) {
+        if (board[this.cells[j].bx][this.cells[j].by + i] == 1 || this.cells[j].by + i >= this.game.boardHeight){
+          found = true;
+          break;
+        }
+      }
+      i++;
+    }
+    for (let j = 0; j < this.cells.length; j++) {
+      newBoard[this.cells[j].bx][this.cells[j].by + i-2] = 2;
+    }
+   return newBoard;
   }
   move(x, y) {
     let canMove = true;
@@ -306,7 +331,7 @@ class Shape {
       this.originX += x;
       this.originY += y;
     }
-    this.game.drawBoard();
+    this.game.drawBoard(this.drawpreview());
     this.draw();
   }
   rotate(side) {
