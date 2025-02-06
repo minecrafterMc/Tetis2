@@ -46,6 +46,7 @@
         border: 1px solid black;
         margin: 0px;
         height: 95%;
+        max-width: 95%;
       }
       #canvas-container {
         padding: 0px;
@@ -71,6 +72,37 @@
         padding: 10px;
         margin-bottom: 10px;
       }
+      
+      .controlls{
+        position: absolute;
+        margin: 0px;
+        display: inline-flex;
+flex-direction: column;
+flex-wrap: nowrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+      }
+      #controlls-left{
+        left: 3%;
+        bottom: 10%;
+      }
+      #controlls-right {
+  right: 3%;
+  bottom: 10%;
+  
+}
+      .controlls *{
+        border-radius: 20px;
+        padding: 30px;
+        opacity: 30%;
+        margin-top: 10px;
+      }
+      #info{
+        position: absolute;
+        top: 3%;
+        left: 7%;
+      }
     </style>
   </head>
 
@@ -78,20 +110,29 @@
     <div id="canvas-container">
       <canvas id="canvas"></canvas>
       <div>
+        <div id="info">
         <p id="timer"></p>
+        <p id="money"></p></div>
         <br />
-        <p id="money"></p>
-        <br />
-        <button onclick="cell1.move(-1,0)">left</button
-        ><button onclick="cell1.move(1,0)">right</button><br /><button
+        <div class="controlls" id="controlls-left">
+        <button onclick="cell1.rotate('left')">left</button><button onclick="cell1.move(-1,0)">left</button><button
+          onclick="if (!menuOpen) {
+pause = !pause;
+menuOpen = !menuOpen;
+menu = 0;
+switchMenu();
+}"
+        >pause
+</button></div><div class="controlls" id="controlls-right"><button
           onclick="cell1.rotate('right')"
         >
           right</button
-        ><button onclick="cell1.rotate('left')">left</button><br /><button
-          onclick="cell1.move(0,1)"
-        >
-          down
-        </button>
+        ><button onclick="cell1.move(1,0)">right</button><button
+          onclick="fastFrame = 0;
+fastUpdateId = setInterval(fastUpdate, 5);"
+        >down
+</button> </div>
+          
       </div>
     </div>
     <div id="menu">

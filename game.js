@@ -72,6 +72,7 @@ const Items = [
     }
   ),
 ];
+var mobile = navigator.appVersion.indexOf("Android") != -1 || navigator.appVersion.indexOf("ios") != -1;
 var lastFrame = Date.now();
 var frame = 0;
 var fastFrame = 0;
@@ -101,6 +102,7 @@ function updateInventoryIterable() {
 }
 var cell1 = new Shape(blocks[0], 0, 0, generateShape, game);
 cell1.draw();
+
 function generateShape(reason) {
   if (reason == "fall") {
     cell1 = new Shape(
@@ -121,6 +123,7 @@ function generateShape(reason) {
   }
   clearInterval(fastUpdateId);
 }
+
 function update() {
   if (!pause) {
     game.drawBoard(cell1.drawpreview());
@@ -144,14 +147,15 @@ function update() {
     cell1.draw();
 
     moneyElement.innerHTML = money + "$<br>";
-    if (frame % Math.ceil(speed / 3) == 0){
+    if (frame % Math.ceil(speed / 3) == 0) {
       game.detectFullRow();
     }
 
     frame++;
   }
 }
-function fastUpdate(){
+
+function fastUpdate() {
   if (!pause) {
     if (fastFrame % speed == 0) {
       cell1.move(0, 1);
@@ -216,6 +220,7 @@ window.addEventListener("keydown", (event) => {
     }
   }
 });
+
 function switchMenu() {
   if (menuOpen) {
     menuElement.style.display = "block";
@@ -226,6 +231,7 @@ function switchMenu() {
     menuElement.style.display = "none";
   }
 }
+
 function BuildRightMenu(menuId) {
   updateInventoryIterable();
   RightMenuElement.innerHTML = "";
@@ -245,9 +251,9 @@ function BuildRightMenu(menuId) {
   if (menuId == 2) {
     RightMenuElement.innerHTML =
       "<h1>Shop for items<br><br>" +
-      (shopOpen
-        ? "Money: " + money + "$</h1>"
-        : "You can access the shop between waves</h1>");
+      (shopOpen ?
+        "Money: " + money + "$</h1>" :
+        "You can access the shop between waves</h1>");
   }
   if (menuId == 3) {
     RightMenuElement.innerHTML =
@@ -275,7 +281,7 @@ function BuildRightMenu(menuId) {
       "; color: " +
       paletes[menuPointer - 1].text +
       "'>fallen blocks</h1><br>";
-      RightMenuElement.innerHTML +=
+    RightMenuElement.innerHTML +=
       "<h1 class='colorDisplay' style='background-color: " +
       paletes[menuPointer - 1].trail +
       "; color: " +
@@ -295,10 +301,10 @@ function BuildRightMenu(menuId) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>Cooldown: " +
         (timer - inventory[menuPointer - 1].lastUsed <
-        inventory[menuPointer - 1].cooldown
-          ? inventory[menuPointer - 1].cooldown -
-            (timer - inventory[menuPointer - 1].lastUsed)
-          : "0") +
+          inventory[menuPointer - 1].cooldown ?
+          inventory[menuPointer - 1].cooldown -
+          (timer - inventory[menuPointer - 1].lastUsed) :
+          "0") +
         "</h1><br>";
     }
     if (inventoryIterable[menuPointer - 1] instanceof ItemCountable) {
@@ -337,6 +343,7 @@ function BuildRightMenu(menuId) {
     }
   }
 }
+
 function BuildMenu() {
   updateInventoryIterable();
   LeftMenuElement.innerHTML = "";
@@ -348,15 +355,15 @@ function BuildMenu() {
       ["colors"],
       ["Quota"],
     ];
-    let rightMenus = [0, 1, 2, 3,4];
+    let rightMenus = [0, 1, 2, 3, 4];
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i].push(document.createElement("div"));
       menuChoices[i][1].className =
-        i == 2
-          ? shopOpen
-            ? "menu-choice"
-            : "menu-choice-inactive"
-          : "menu-choice";
+        i == 2 ?
+        shopOpen ?
+        "menu-choice" :
+        "menu-choice-inactive" :
+        "menu-choice";
       menuChoices[i].push(() => {
         if (i == 0) {
           menuOpen = false;
@@ -375,15 +382,30 @@ function BuildMenu() {
       menuChoices[i][1].innerHTML = menuChoices[i][0];
       menuChoices[i][4] = rightMenus[i];
       menuChoices[i][1].onclick = () => {
-        if (menuChoices[i][3]) {
-          menuChoices[i][2]();
+        if (mobile) {
+          if (menuPointer != i) {
+            menuPointer = i;
+            BuildRightMenu(menuChoices[i][4]);
+            navigateMenu("update");
+          }
+          else {
+            if (menuChoices[i][3]) {
+              menuChoices[i][2]();
+            }
+          }
+        }
+        else {
+          if (menuChoices[i][3]) {
+            menuChoices[i][2]();
+          }
         }
       };
       menuChoices[i][1].onmousemove = () => {
+        if (!mobile) {
 
           menuPointer = i;
           navigateMenu("update");
-        
+        }
       };
       LeftMenuElement.appendChild(menuChoices[i][1]);
     }
@@ -401,32 +423,47 @@ function BuildMenu() {
       ],
     ];
     menuChoices[0][1].onclick = () => {
+  if (mobile) {
+    if (menuPointer != 0) {
+      menuPointer = 0;
+      BuildRightMenu(menuChoices[0][4]);
+      navigateMenu("update");
+    }
+    else {
       if (menuChoices[0][3]) {
         menuChoices[0][2]();
       }
-    };
-    menuChoices[0][1].onmousemove = () => {
- 
-        menuPointer = 0;
-        navigateMenu("update");
-      
-    };
+    }
+  }
+  else {
+    if (menuChoices[0][3]) {
+      menuChoices[0][2]();
+    }
+  }
+};
+menuChoices[0][1].onmousemove = () => {
+  if (!mobile) {
+
+    menuPointer = 0;
+    navigateMenu("update");
+  }
+};
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
     for (let i = 0; i < inventoryIterable.length; i++) {
       menuChoices.push([inventoryIterable[i].name]);
       menuChoices[i + 1].push(document.createElement("div"));
-      menuChoices[i + 1][1].className = shopOpen
-        ? "menu-choice-inactive"
-        : "menu-choice";
+      menuChoices[i + 1][1].className = shopOpen ?
+        "menu-choice-inactive" :
+        "menu-choice";
       menuChoices[i + 1].push(() => {
         if (!shopOpen) {
           if (
             inventoryIterable[i].lastUsed + inventoryIterable[i].cooldown <=
-              timer && inventoryIterable[i] instanceof ItemCountable
-              ? inventoryIterable[i].count > 0
-              : true
+            timer && inventoryIterable[i] instanceof ItemCountable ?
+            inventoryIterable[i].count > 0 :
+            true
           ) {
             inventoryIterable[i].onActivate();
             inventoryIterable[i].lastUsed = timer;
@@ -443,16 +480,31 @@ function BuildMenu() {
       menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
       menuChoices[i + 1][4] = 7;
       menuChoices[i+1][1].onclick = () => {
-        if (menuChoices[i+1][3]) {
-          menuChoices[i+1][2]();
-        }
-      };
-      menuChoices[i+1][1].onmousemove = () => {
-      
-          menuPointer = i+1;
-          navigateMenu("update");
+  if (mobile) {
+    if (menuPointer != i+1) {
+      menuPointer = i+1;
+      BuildRightMenu(menuChoices[i+1][4]);
+      navigateMenu("update");
+    }
+    else {
+      if (menuChoices[i+1][3]) {
+        menuChoices[i+1][2]();
+      }
+    }
+  }
+  else {
+    if (menuChoices[i+1][3]) {
+      menuChoices[i+1][2]();
+    }
+  }
+};
+menuChoices[i+1][1].onmousemove = () => {
+  if (!mobile) {
 
-      };
+    menuPointer = i+1;
+    navigateMenu("update");
+  }
+};
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
   } else if (menu == 2) {
@@ -469,25 +521,40 @@ function BuildMenu() {
       ],
     ];
     menuChoices[0][1].onclick = () => {
+  if (mobile) {
+    if (menuPointer != 0) {
+      menuPointer = 0;
+      BuildRightMenu(menuChoices[0][4]);
+      navigateMenu("update");
+    }
+    else {
       if (menuChoices[0][3]) {
         menuChoices[0][2]();
       }
-    };
-    menuChoices[0][1].onmousemove = () => {
+    }
+  }
+  else {
+    if (menuChoices[0][3]) {
+      menuChoices[0][2]();
+    }
+  }
+};
+menuChoices[0][1].onmousemove = () => {
+  if (!mobile) {
 
-        menuPointer = 0;
-        navigateMenu("update");
-      
-    };
+    menuPointer = 0;
+    navigateMenu("update");
+  }
+};
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
     for (let i = 0; i < Items.length; i++) {
       menuChoices.push([
         Items[i].name +
-          (Items[i].owned && !(Items[i] instanceof ItemCountable)
-            ? " (SOLD OUT)"
-            : " (" + Items[i].price + "$)"),
+          (Items[i].owned && !(Items[i] instanceof ItemCountable) ?
+          " (SOLD OUT)" :
+          " (" + Items[i].price + "$)"),
       ]);
       menuChoices[i + 1].push(document.createElement("div"));
       menuChoices[i + 1][1].className = "menu-choice";
@@ -501,16 +568,31 @@ function BuildMenu() {
       menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
       menuChoices[i + 1][4] = 8;
       menuChoices[i+1][1].onclick = () => {
-        if (menuChoices[i+1][3]) {
-          menuChoices[i+1][2]();
-        }
-      };
-      menuChoices[i+1][1].onmousemove = () => {
+  if (mobile) {
+    if (menuPointer != i+1) {
+      menuPointer = i+1;
+      BuildRightMenu(menuChoices[i+1][4]);
+      navigateMenu("update");
+    }
+    else {
+      if (menuChoices[i+1][3]) {
+        menuChoices[i+1][2]();
+      }
+    }
+  }
+  else {
+    if (menuChoices[i+1][3]) {
+      menuChoices[i+1][2]();
+    }
+  }
+};
+menuChoices[i+1][1].onmousemove = () => {
+  if (!mobile) {
 
-          menuPointer = i+1;
-          navigateMenu("update");
-        
-      };
+    menuPointer = i+1;
+    navigateMenu("update");
+  }
+};
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
   } else if (menu == 3) {
@@ -527,16 +609,31 @@ function BuildMenu() {
       ],
     ];
     menuChoices[0][1].onclick = () => {
+  if (mobile) {
+    if (menuPointer != 0) {
+      menuPointer = 0;
+      BuildRightMenu(menuChoices[0][4]);
+      navigateMenu("update");
+    }
+    else {
       if (menuChoices[0][3]) {
         menuChoices[0][2]();
       }
-    };
-    menuChoices[0][1].onmousemove = () => {
+    }
+  }
+  else {
+    if (menuChoices[0][3]) {
+      menuChoices[0][2]();
+    }
+  }
+};
+menuChoices[0][1].onmousemove = () => {
+  if (!mobile) {
 
-        menuPointer = 0;
-        navigateMenu("update");
-
-    };
+    menuPointer = 0;
+    navigateMenu("update");
+  }
+};
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
@@ -556,16 +653,31 @@ function BuildMenu() {
       menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
       menuChoices[i + 1][4] = 6;
       menuChoices[i+1][1].onclick = () => {
-        if (menuChoices[i+1][3]) {
-          menuChoices[i+1][2]();
-        }
-      };
-      menuChoices[i+1][1].onmousemove = () => {
+  if (mobile) {
+    if (menuPointer != i+1) {
+      menuPointer = i+1;
+      BuildRightMenu(menuChoices[i+1][4]);
+      navigateMenu("update");
+    }
+    else {
+      if (menuChoices[i+1][3]) {
+        menuChoices[i+1][2]();
+      }
+    }
+  }
+  else {
+    if (menuChoices[i+1][3]) {
+      menuChoices[i+1][2]();
+    }
+  }
+};
+menuChoices[i+1][1].onmousemove = () => {
+  if (!mobile) {
 
-          menuPointer = i+1;
-          navigateMenu("update");
-        
-      };
+    menuPointer = i+1;
+    navigateMenu("update");
+  }
+};
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
   } else if (menu == 4) {
@@ -594,27 +706,43 @@ function BuildMenu() {
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i][1].innerHTML = menuChoices[i][0];
       menuChoices[i][1].className =
-        i == 1
-          ? shopOpen
-            ? "menu-choice"
-            : "menu-choice-inactive"
-          : "menu-choice";
-          menuChoices[i][1].onclick = () => {
+        i == 1 ?
+        shopOpen ?
+        "menu-choice" :
+        "menu-choice-inactive" :
+        "menu-choice";
+      menuChoices[i][1].onclick = () => {
+        if (mobile) {
+          if (menuPointer != i) {
+            menuPointer = i;
+            BuildRightMenu(menuChoices[i][4]);
+            navigateMenu("update");
+          }
+          else {
             if (menuChoices[i][3]) {
               menuChoices[i][2]();
             }
-          };
-          menuChoices[i][1].onmousemove = () => {
+          }
+        }
+        else {
+          if (menuChoices[i][3]) {
+            menuChoices[i][2]();
+          }
+        }
+      };
+      menuChoices[i][1].onmousemove = () => {
+        if (!mobile) {
 
-              menuPointer = i;
-              navigateMenu("update");
-            
-          };
+          menuPointer = i;
+          navigateMenu("update");
+        }
+      };
       LeftMenuElement.appendChild(menuChoices[i][1]);
     }
-    }
+  }
   menuChoices[menuPointer][1].id = "menu-selected";
 }
+
 function navigateMenu(action) {
   if (action == "up") {
     if (menuPointer > 0) {
@@ -634,8 +762,8 @@ function navigateMenu(action) {
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i][1].id = "";
     }
-      
-      menuChoices[menuPointer][1].id = "menu-selected";
+
+    menuChoices[menuPointer][1].id = "menu-selected";
   }
   if (action == "select") {
     if (menuChoices[menuPointer][3]) {
