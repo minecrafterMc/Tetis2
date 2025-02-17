@@ -39,6 +39,10 @@ const menuElement = document.getElementById("menu");
 const LeftMenuElement = document.getElementById("menu-left");
 const RightMenuElement = document.getElementById("menu-right");
 const canvas = document.getElementById("canvas");
+const leftMoveButton = document.getElementById("left-move-button");
+const leftRotButton = document.getElementById("left-rot-button");
+const rightMoveButton = document.getElementById("right-move-button");
+const rightRotButton = document.getElementById("right-rot-button");
 const ctx = canvas.getContext("2d");
 const board = [];
 class gameManager {
@@ -121,6 +125,7 @@ class gameManager {
             board[j][i] = 0;
         }
         money+=income;
+        AbilityRegistries.run("onLineClear");
         break main;
       }
       full = true;
@@ -432,7 +437,7 @@ class Ability{
     if (money >= this.price){
       money -= this.price;
       this.onBuy();
-      AbilityRegistries[this.registry][this.id] = this;
+      this.registry[this.id] = this;
       return {success: true, message: "Ability bought"};
     }
     else{
@@ -449,8 +454,8 @@ class AbilityCountable extends Ability{
     if (money >= this.price){
       money -= this.price;
       this.onBuy();
-      AbilityRegistries[this.registry][this.id] = this;
-      AbilityRegistries[this.registry][this.id].count++;
+      this.registry[this.id] = this;
+      this.registry[this.id].count++;
       return {success: true, message: "Ability bought"};
     }
     else{

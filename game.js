@@ -12,8 +12,19 @@ const AbilityRegistries = {
   onBlockFall: [],
   onitemUse: [],
   passive: [],
+  run: (cat) =>{
+    let iterable = [];
+    let keys = Object.keys(AbilityRegistries[cat]);
+    for (let i = 0;i<keys.length;i++){
+      iterable[i] = AbilityRegistries[cat][keys[i]];
+    }
+    for (let i = 0;i<iterable.length;i++){
+      iterable[i].onActivate();
+    }
+  }
 };
-const Items = [
+
+const RegisteredItems = [
 
 
   new Item(
@@ -71,7 +82,27 @@ const Items = [
       return "";
     }
   ),
+  new Ability(1,"clear","clears the screen whenever a line is cleared",1,0,()=>{},()=>{game.resetBoard()},AbilityRegistries.onLineClear ),
+  new Item(2,"TnT","blows up",1,5,()=>{
+    let sy = cell1.originy + Math.floor(cell1.shape.pattern2d.length / 2);
+    let sx = cell1.originx + Math.floor(cell1.shape.width / 2);
+    for (let i = 0;i<9;i++){
+      board[sx+(1-Math.floor(i%3))][sy+(1-Math.floor(i/3))] = 0;
+    }
+  },()=>{},()=>{})
+  
 ];
+var Items = [
+  
+  ]
+var quotas = [
+  10,
+  40,
+  80,
+  100,
+  150,
+  200
+  ]
 var mobile = navigator.appVersion.indexOf("Android") != -1 || navigator.appVersion.indexOf("ios") != -1;
 var lastFrame = Date.now();
 var frame = 0;
@@ -90,7 +121,7 @@ var menu = 0;
 var shopOpen = false;
 var menuChoices = [];
 var shapeSpawnPosition = 0;
-var inventory = { 0: Items[0] };
+var inventory = { };
 var inventoryIterable = [];
 
 function updateInventoryIterable() {
@@ -105,9 +136,10 @@ cell1.draw();
 
 function generateShape(reason) {
   if (reason == "fall") {
+    AbilityRegistries.run("onBlockFall");
     cell1 = new Shape(
       blocks[RandomInt(0, blocks.length - 1)],
-      0,
+      Math.floor(game.boardWidth/2),
       0,
       generateShape,
       game
@@ -137,11 +169,18 @@ function update() {
       if (timer == timeLimit) {
         wave++;
         timer = 0;
-        //waveElement.innerHTML = wave;
         pause = true;
         menuOpen = true;
         shopOpen = true;
+        generateShop();
         switchMenu();
+      }
+    }
+    if (frame%2==0){
+      if (leftMoveButton.pressed){
+        if (!menuOpen) {
+  cell1.move(-1, 0);
+}
       }
     }
     cell1.draw();
@@ -220,7 +259,12 @@ window.addEventListener("keydown", (event) => {
     }
   }
 });
-
+function generateShop(){
+  for (let i = 0;i<4;i++){
+    let item = RegisteredItems[RandomInt(0,RegisteredItems.length-1)]
+    Items[i] = item;
+  }
+}
 function switchMenu() {
   if (menuOpen) {
     menuElement.style.display = "block";
@@ -300,10 +344,10 @@ function BuildRightMenu(menuId) {
     if (inventoryIterable[menuPointer - 1].cooldown > 0) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>Cooldown: " +
-        (timer - inventory[menuPointer - 1].lastUsed <
-          inventory[menuPointer - 1].cooldown ?
-          inventory[menuPointer - 1].cooldown -
-          (timer - inventory[menuPointer - 1].lastUsed) :
+        (timer - inventoryIterable[menuPointer - 1].lastUsed <
+          inventoryIterable[menuPointer - 1].cooldown ?
+          inventoryIterable[menuPointer - 1].cooldown -
+          (timer - inventoryIterable[menuPointer - 1].lastUsed) :
           "0") +
         "</h1><br>";
     }
@@ -313,10 +357,13 @@ function BuildRightMenu(menuId) {
         inventoryIterable[menuPointer - 1].count +
         "</h1><br>";
     }
+    if (inventoryIterable[menuPointer-1].customInventoryText() != undefined){
     RightMenuElement.innerHTML +=
       "<h1 class='itemDisplay'>" +
       inventoryIterable[menuPointer - 1].customInventoryText() +
       "</h1><br>";
+      
+    }
   }
   if (menuId == 8) {
     RightMenuElement.innerHTML =
@@ -341,6 +388,14 @@ function BuildRightMenu(menuId) {
         Items[menuPointer - 1].count +
         "</h1><br>";
     }
+  }
+  if (menuId == 9){
+    RightMenuElement.innerHTML = "<h1>Info about current quota</h1><br>";
+    let currentQuota = Math.floor(wave / 5);
+    RightMenuElement.innerHTML += "<h2>Current quota: "+ currentQuota;
+    RightMenuElement.innerHTML += "<br>due by wave " + 5*(currentQuota+1);
+    RightMenuElement.innerHTML +="<br>amount to pay: " + quotas[currentQuota]+"$";
+    RightMenuElement.innerHTML += "<br>payment will be taken automaticlly</h2>"
   }
 }
 
