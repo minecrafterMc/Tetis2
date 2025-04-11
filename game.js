@@ -7,26 +7,27 @@ const paletes = gameData.colors;
 var currentPalete = 0;
 const blocks = gameData.blocks;
 const game = new gameManager(30, 30, 10, 20, paletes);
+game.quotaEnabled = true;
 const AbilityRegistries = {
   onLineClear: [],
   onBlockFall: [],
   onitemUse: [],
   passive: [],
-  run: (cat) =>{
+  run: (cat) => {
     let iterable = [];
     let keys = Object.keys(AbilityRegistries[cat]);
-    for (let i = 0;i<keys.length;i++){
+    for (let i = 0; i < keys.length; i++) {
       iterable[i] = AbilityRegistries[cat][keys[i]];
     }
-    for (let i = 0;i<iterable.length;i++){
+    for (let i = 0; i < iterable.length; i++) {
       iterable[i].onActivate();
     }
   }
 };
 
 const RegisteredItems = [
-
-
+  
+  
   new Item(
     0,
     "clear",
@@ -82,19 +83,19 @@ const RegisteredItems = [
       return "";
     }
   ),
-  new Ability(1,"clear","clears the screen whenever a line is cleared",1,0,()=>{},()=>{game.resetBoard()},AbilityRegistries.onLineClear ),
-  new Item(2,"TnT","blows up",1,5,()=>{
+  new Ability(1, "clear", "clears the screen whenever a line is cleared", 1, 0, () => {}, () => { game.resetBoard() }, AbilityRegistries.onLineClear),
+  new Item(2, "TnT", "blows up", 1, 5, () => {
     let sy = cell1.originy + Math.floor(cell1.shape.pattern2d.length / 2);
     let sx = cell1.originx + Math.floor(cell1.shape.width / 2);
-    for (let i = 0;i<9;i++){
-      board[sx+(1-Math.floor(i%3))][sy+(1-Math.floor(i/3))] = 0;
+    for (let i = 0; i < 9; i++) {
+      board[sx + (1 - Math.floor(i % 3))][sy + (1 - Math.floor(i / 3))] = 0;
     }
-  },()=>{},()=>{})
+  }, () => {}, () => {})
   
 ];
 var Items = [
   
-  ]
+]
 var quotas = [
   10,
   40,
@@ -102,7 +103,7 @@ var quotas = [
   100,
   150,
   200
-  ]
+]
 var mobile = navigator.appVersion.indexOf("Android") != -1 || navigator.appVersion.indexOf("ios") != -1;
 var lastFrame = Date.now();
 var frame = 0;
@@ -114,14 +115,16 @@ var money = 0;
 var wave = 0;
 var timeLimit = 30;
 var income = 1;
+var menuBlocked = false;
 var menuOpen = false;
 var pause = false;
 var menuPointer = 0;
 var menu = 0;
+var tutorialStep = 0;
 var shopOpen = false;
 var menuChoices = [];
 var shapeSpawnPosition = 0;
-var inventory = { };
+var inventory = {};
 var inventoryIterable = [];
 
 function updateInventoryIterable() {
@@ -139,7 +142,7 @@ function generateShape(reason) {
     AbilityRegistries.run("onBlockFall");
     cell1 = new Shape(
       blocks[RandomInt(0, blocks.length - 1)],
-      Math.floor(game.boardWidth/2),
+      Math.floor(game.boardWidth / 2),
       0,
       generateShape,
       game
@@ -172,24 +175,41 @@ function update() {
         pause = true;
         menuOpen = true;
         shopOpen = true;
+        if (game.quotaEnabled && wave %5 == 0 && wave != 0){
+          if (money > quotas[(wave / 5) - 1]){
+            money -= quotas[(wave / 5) - 1];
+          }
+          else{
+            game.loose();
+          }
+        }
+        if (gameData.tutorialEnabled) {
+          if (eval(gameData.tutorial[tutorialStep].condition)) {
+            
+            if (gameData.tutorial[tutorialStep+1].appear == "clearWave"){
+          tutorialStep++;}
+            buildTutorial("clearWave");
+          }
+        }
         generateShop();
         switchMenu();
       }
     }
-    if (frame%2==0){
-      if (leftMoveButton.pressed){
+    if (frame % 2 == 0) {
+      if (leftMoveButton.pressed) {
         if (!menuOpen) {
-  cell1.move(-1, 0);
-}
+          cell1.move(-1, 0);
+        }
       }
     }
     cell1.draw();
-
+    
     moneyElement.innerHTML = money + "$<br>";
     if (frame % Math.ceil(speed / 3) == 0) {
       game.detectFullRow();
+      game.detectFullBoard();
     }
-
+    
     frame++;
   }
 }
@@ -259,12 +279,18 @@ window.addEventListener("keydown", (event) => {
     }
   }
 });
-function generateShop(){
-  for (let i = 0;i<4;i++){
-    let item = RegisteredItems[RandomInt(0,RegisteredItems.length-1)]
+
+function generateShop() {
+  Items = [];
+  for (let i = 0; i < 4; i++) {
+    let item;
+    do{ 
+    item = RegisteredItems[RandomInt(0, RegisteredItems.length - 1)];
+    } while(Items.includes(item));
     Items[i] = item;
   }
 }
+
 function switchMenu() {
   if (menuOpen) {
     menuElement.style.display = "block";
@@ -273,6 +299,41 @@ function switchMenu() {
     BuildRightMenu(0);
   } else {
     menuElement.style.display = "none";
+  }
+}
+
+function buildTutorial(close) {
+  if (gameData.tutorialEnabled) {
+    if (tutorialStep === 0) {
+      TutorialElement.style.display = "block";
+      TutorialElement.innerHTML = gameData.tutorial[0].text;
+      eval(gameData.tutorial[0].action);
+      
+    }
+    
+    else {
+      console.log(close, gameData.tutorial[tutorialStep])
+      if (gameData.tutorial[tutorialStep].appear == close) {
+        console.log("test")
+        TutorialElement.style.display = "block";
+        TutorialElement.innerHTML = gameData.tutorial[tutorialStep].text;
+        eval(gameData.tutorial[tutorialStep].action);
+      }
+    }
+    TutorialElement.onclick = () => {
+      if (eval(gameData.tutorial[tutorialStep].condition)) {
+        eval(gameData.tutorial[tutorialStep].afterAction);
+        TutorialElement.style.display = "none";
+        if (tutorialStep != gameData.tutorial.length -1){
+        if (gameData.tutorial[tutorialStep + 1].appear == "auto") {
+          tutorialStep++;
+          buildTutorial("auto");
+        }
+      }
+      }
+      
+    }
+    
   }
 }
 
@@ -357,11 +418,11 @@ function BuildRightMenu(menuId) {
         inventoryIterable[menuPointer - 1].count +
         "</h1><br>";
     }
-    if (inventoryIterable[menuPointer-1].customInventoryText() != undefined){
-    RightMenuElement.innerHTML +=
-      "<h1 class='itemDisplay'>" +
-      inventoryIterable[menuPointer - 1].customInventoryText() +
-      "</h1><br>";
+    if (inventoryIterable[menuPointer - 1].customInventoryText() != undefined) {
+      RightMenuElement.innerHTML +=
+        "<h1 class='itemDisplay'>" +
+        inventoryIterable[menuPointer - 1].customInventoryText() +
+        "</h1><br>";
       
     }
   }
@@ -389,12 +450,12 @@ function BuildRightMenu(menuId) {
         "</h1><br>";
     }
   }
-  if (menuId == 9){
+  if (menuId == 9) {
     RightMenuElement.innerHTML = "<h1>Info about current quota</h1><br>";
     let currentQuota = Math.floor(wave / 5);
-    RightMenuElement.innerHTML += "<h2>Current quota: "+ currentQuota;
-    RightMenuElement.innerHTML += "<br>due by wave " + 5*(currentQuota+1);
-    RightMenuElement.innerHTML +="<br>amount to pay: " + quotas[currentQuota]+"$";
+    RightMenuElement.innerHTML += "<h2>Current quota: " + currentQuota;
+    RightMenuElement.innerHTML += "<br>due by wave " + 5 * (currentQuota + 1);
+    RightMenuElement.innerHTML += "<br>amount to pay: " + quotas[currentQuota] + "$";
     RightMenuElement.innerHTML += "<br>payment will be taken automaticlly</h2>"
   }
 }
@@ -414,6 +475,10 @@ function BuildMenu() {
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i].push(document.createElement("div"));
       menuChoices[i][1].className =
+      i == 0 ?
+        menuBlocked ?
+        "menu-choice-inactive" :
+        "menu-choice" :
         i == 2 ?
         shopOpen ?
         "menu-choice" :
@@ -433,7 +498,7 @@ function BuildMenu() {
         menu = i;
         switchMenu();
       });
-      menuChoices[i].push(i == 2 ? shopOpen : true);
+      menuChoices[i].push(i==0 ? !menuBlocked : i == 2 ? shopOpen : true);
       menuChoices[i][1].innerHTML = menuChoices[i][0];
       menuChoices[i][4] = rightMenus[i];
       menuChoices[i][1].onclick = () => {
@@ -457,7 +522,7 @@ function BuildMenu() {
       };
       menuChoices[i][1].onmousemove = () => {
         if (!mobile) {
-
+          
           menuPointer = i;
           navigateMenu("update");
         }
@@ -478,31 +543,31 @@ function BuildMenu() {
       ],
     ];
     menuChoices[0][1].onclick = () => {
-  if (mobile) {
-    if (menuPointer != 0) {
-      menuPointer = 0;
-      BuildRightMenu(menuChoices[0][4]);
-      navigateMenu("update");
-    }
-    else {
-      if (menuChoices[0][3]) {
-        menuChoices[0][2]();
+      if (mobile) {
+        if (menuPointer != 0) {
+          menuPointer = 0;
+          BuildRightMenu(menuChoices[0][4]);
+          navigateMenu("update");
+        }
+        else {
+          if (menuChoices[0][3]) {
+            menuChoices[0][2]();
+          }
+        }
       }
-    }
-  }
-  else {
-    if (menuChoices[0][3]) {
-      menuChoices[0][2]();
-    }
-  }
-};
-menuChoices[0][1].onmousemove = () => {
-  if (!mobile) {
-
-    menuPointer = 0;
-    navigateMenu("update");
-  }
-};
+      else {
+        if (menuChoices[0][3]) {
+          menuChoices[0][2]();
+        }
+      }
+    };
+    menuChoices[0][1].onmousemove = () => {
+      if (!mobile) {
+        
+        menuPointer = 0;
+        navigateMenu("update");
+      }
+    };
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
@@ -534,32 +599,32 @@ menuChoices[0][1].onmousemove = () => {
       menuChoices[i + 1].push(!shopOpen);
       menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
       menuChoices[i + 1][4] = 7;
-      menuChoices[i+1][1].onclick = () => {
-  if (mobile) {
-    if (menuPointer != i+1) {
-      menuPointer = i+1;
-      BuildRightMenu(menuChoices[i+1][4]);
-      navigateMenu("update");
-    }
-    else {
-      if (menuChoices[i+1][3]) {
-        menuChoices[i+1][2]();
-      }
-    }
-  }
-  else {
-    if (menuChoices[i+1][3]) {
-      menuChoices[i+1][2]();
-    }
-  }
-};
-menuChoices[i+1][1].onmousemove = () => {
-  if (!mobile) {
-
-    menuPointer = i+1;
-    navigateMenu("update");
-  }
-};
+      menuChoices[i + 1][1].onclick = () => {
+        if (mobile) {
+          if (menuPointer != i + 1) {
+            menuPointer = i + 1;
+            BuildRightMenu(menuChoices[i + 1][4]);
+            navigateMenu("update");
+          }
+          else {
+            if (menuChoices[i + 1][3]) {
+              menuChoices[i + 1][2]();
+            }
+          }
+        }
+        else {
+          if (menuChoices[i + 1][3]) {
+            menuChoices[i + 1][2]();
+          }
+        }
+      };
+      menuChoices[i + 1][1].onmousemove = () => {
+        if (!mobile) {
+          
+          menuPointer = i + 1;
+          navigateMenu("update");
+        }
+      };
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
   } else if (menu == 2) {
@@ -576,38 +641,38 @@ menuChoices[i+1][1].onmousemove = () => {
       ],
     ];
     menuChoices[0][1].onclick = () => {
-  if (mobile) {
-    if (menuPointer != 0) {
-      menuPointer = 0;
-      BuildRightMenu(menuChoices[0][4]);
-      navigateMenu("update");
-    }
-    else {
-      if (menuChoices[0][3]) {
-        menuChoices[0][2]();
+      if (mobile) {
+        if (menuPointer != 0) {
+          menuPointer = 0;
+          BuildRightMenu(menuChoices[0][4]);
+          navigateMenu("update");
+        }
+        else {
+          if (menuChoices[0][3]) {
+            menuChoices[0][2]();
+          }
+        }
       }
-    }
-  }
-  else {
-    if (menuChoices[0][3]) {
-      menuChoices[0][2]();
-    }
-  }
-};
-menuChoices[0][1].onmousemove = () => {
-  if (!mobile) {
-
-    menuPointer = 0;
-    navigateMenu("update");
-  }
-};
+      else {
+        if (menuChoices[0][3]) {
+          menuChoices[0][2]();
+        }
+      }
+    };
+    menuChoices[0][1].onmousemove = () => {
+      if (!mobile) {
+        
+        menuPointer = 0;
+        navigateMenu("update");
+      }
+    };
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
     for (let i = 0; i < Items.length; i++) {
       menuChoices.push([
         Items[i].name +
-          (Items[i].owned && !(Items[i] instanceof ItemCountable) ?
+        (Items[i].owned && !(Items[i] instanceof ItemCountable) ?
           " (SOLD OUT)" :
           " (" + Items[i].price + "$)"),
       ]);
@@ -622,32 +687,32 @@ menuChoices[0][1].onmousemove = () => {
       );
       menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
       menuChoices[i + 1][4] = 8;
-      menuChoices[i+1][1].onclick = () => {
-  if (mobile) {
-    if (menuPointer != i+1) {
-      menuPointer = i+1;
-      BuildRightMenu(menuChoices[i+1][4]);
-      navigateMenu("update");
-    }
-    else {
-      if (menuChoices[i+1][3]) {
-        menuChoices[i+1][2]();
-      }
-    }
-  }
-  else {
-    if (menuChoices[i+1][3]) {
-      menuChoices[i+1][2]();
-    }
-  }
-};
-menuChoices[i+1][1].onmousemove = () => {
-  if (!mobile) {
-
-    menuPointer = i+1;
-    navigateMenu("update");
-  }
-};
+      menuChoices[i + 1][1].onclick = () => {
+        if (mobile) {
+          if (menuPointer != i + 1) {
+            menuPointer = i + 1;
+            BuildRightMenu(menuChoices[i + 1][4]);
+            navigateMenu("update");
+          }
+          else {
+            if (menuChoices[i + 1][3]) {
+              menuChoices[i + 1][2]();
+            }
+          }
+        }
+        else {
+          if (menuChoices[i + 1][3]) {
+            menuChoices[i + 1][2]();
+          }
+        }
+      };
+      menuChoices[i + 1][1].onmousemove = () => {
+        if (!mobile) {
+          
+          menuPointer = i + 1;
+          navigateMenu("update");
+        }
+      };
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
   } else if (menu == 3) {
@@ -664,31 +729,31 @@ menuChoices[i+1][1].onmousemove = () => {
       ],
     ];
     menuChoices[0][1].onclick = () => {
-  if (mobile) {
-    if (menuPointer != 0) {
-      menuPointer = 0;
-      BuildRightMenu(menuChoices[0][4]);
-      navigateMenu("update");
-    }
-    else {
-      if (menuChoices[0][3]) {
-        menuChoices[0][2]();
+      if (mobile) {
+        if (menuPointer != 0) {
+          menuPointer = 0;
+          BuildRightMenu(menuChoices[0][4]);
+          navigateMenu("update");
+        }
+        else {
+          if (menuChoices[0][3]) {
+            menuChoices[0][2]();
+          }
+        }
       }
-    }
-  }
-  else {
-    if (menuChoices[0][3]) {
-      menuChoices[0][2]();
-    }
-  }
-};
-menuChoices[0][1].onmousemove = () => {
-  if (!mobile) {
-
-    menuPointer = 0;
-    navigateMenu("update");
-  }
-};
+      else {
+        if (menuChoices[0][3]) {
+          menuChoices[0][2]();
+        }
+      }
+    };
+    menuChoices[0][1].onmousemove = () => {
+      if (!mobile) {
+        
+        menuPointer = 0;
+        navigateMenu("update");
+      }
+    };
     menuChoices[0][1].innerHTML = menuChoices[0][0];
     menuChoices[0][1].className = "menu-choice";
     LeftMenuElement.appendChild(menuChoices[0][1]);
@@ -707,32 +772,32 @@ menuChoices[0][1].onmousemove = () => {
       menuChoices[i + 1].push(!shopOpen);
       menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
       menuChoices[i + 1][4] = 6;
-      menuChoices[i+1][1].onclick = () => {
-  if (mobile) {
-    if (menuPointer != i+1) {
-      menuPointer = i+1;
-      BuildRightMenu(menuChoices[i+1][4]);
-      navigateMenu("update");
-    }
-    else {
-      if (menuChoices[i+1][3]) {
-        menuChoices[i+1][2]();
-      }
-    }
-  }
-  else {
-    if (menuChoices[i+1][3]) {
-      menuChoices[i+1][2]();
-    }
-  }
-};
-menuChoices[i+1][1].onmousemove = () => {
-  if (!mobile) {
-
-    menuPointer = i+1;
-    navigateMenu("update");
-  }
-};
+      menuChoices[i + 1][1].onclick = () => {
+        if (mobile) {
+          if (menuPointer != i + 1) {
+            menuPointer = i + 1;
+            BuildRightMenu(menuChoices[i + 1][4]);
+            navigateMenu("update");
+          }
+          else {
+            if (menuChoices[i + 1][3]) {
+              menuChoices[i + 1][2]();
+            }
+          }
+        }
+        else {
+          if (menuChoices[i + 1][3]) {
+            menuChoices[i + 1][2]();
+          }
+        }
+      };
+      menuChoices[i + 1][1].onmousemove = () => {
+        if (!mobile) {
+          
+          menuPointer = i + 1;
+          navigateMenu("update");
+        }
+      };
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
   } else if (menu == 4) {
@@ -787,7 +852,7 @@ menuChoices[i+1][1].onmousemove = () => {
       };
       menuChoices[i][1].onmousemove = () => {
         if (!mobile) {
-
+          
           menuPointer = i;
           navigateMenu("update");
         }
@@ -817,7 +882,7 @@ function navigateMenu(action) {
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i][1].id = "";
     }
-
+    
     menuChoices[menuPointer][1].id = "menu-selected";
   }
   if (action == "select") {
