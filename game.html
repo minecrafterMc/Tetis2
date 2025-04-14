@@ -147,8 +147,7 @@ switchMenu();
         >
           right rotate</button
         ><button onmousedown="this.pressed = true;" onmouseup="this.pressed = false;" onclick="cell1.move(1,0)" id="right-move-button">right</button><button onmousedown="this.pressed = true;" onmouseup="this.pressed = false;"
-          onclick="fastFrame = 0;
-fastUpdateId = setInterval(fastUpdate, 5);"
+          onclick="cell1.moveDown()"
         >down
 </button> </div>
           

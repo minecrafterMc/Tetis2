@@ -252,8 +252,7 @@ window.addEventListener("keydown", (event) => {
     if (menuOpen) {
       navigateMenu("down");
     } else {
-      fastFrame = 0;
-      fastUpdateId = setInterval(fastUpdate, 5);
+      cell1.moveDown();
     }
   }
 });

@@ -342,6 +342,23 @@ class Shape {
     }
     return newBoard;
   }
+  moveDown() {
+  let i = 0;
+  let found = false;
+  while (!found) {
+    for (let j = 0; j < this.cells.length; j++) {
+      if (board[this.cells[j].bx][this.cells[j].by + i] == 1 || this.cells[j].by + i >= this.game.boardHeight) {
+        found = true;
+        break;
+      }
+    }
+    i++;
+  }
+  for (let j = 0; j < this.cells.length; j++) {
+    board[this.cells[j].bx][this.cells[j].by + i - 2] = 1;
+  }
+  generateShape("fall");
+}
   move(x, y) {
     let canMove = true;
     for (let i = 0; i < this.cells.length; i++) {
