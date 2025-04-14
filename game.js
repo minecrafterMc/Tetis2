@@ -174,7 +174,7 @@ function update() {
       cell1.drawpreview();
     }
     if (frame % 2 == 0){
-      if (presseKeys.a){
+      if (pressedKeys.a){
         if (!menuOpen) {
       cell1.move(-1, 0);
     }
