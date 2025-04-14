@@ -127,7 +127,7 @@ var menuChoices = [];
 var shapeSpawnPosition = 0;
 var inventory = {};
 var inventoryIterable = [];
-const keys = {
+const pressedKeys = {
   "a": false,
   "d": false,
   "arrowLeft": false,
@@ -174,7 +174,7 @@ function update() {
       cell1.drawpreview();
     }
     if (frame % 2 == 0){
-      if (keys.a){
+      if (presseKeys.a){
         if (!menuOpen) {
       cell1.move(-1, 0);
     }
@@ -248,7 +248,7 @@ function fastUpdate() {
 setInterval(update, 50);
 window.addEventListener("keydown", (event) => {
   if (event.key == "a") {
-    keys.a = true;
+    pressedKeys.a = true;
     if (!menuOpen) {
       cell1.move(-1, 0);
     }
@@ -256,7 +256,7 @@ window.addEventListener("keydown", (event) => {
 });
 window.addEventListener("keyup", (event) => {
   if (event.key == "a") {
-    keys.a = false;
+    pressedKeys.a = false;
   }
 });
 window.addEventListener("keydown", (event) => {
