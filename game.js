@@ -127,7 +127,13 @@ var menuChoices = [];
 var shapeSpawnPosition = 0;
 var inventory = {};
 var inventoryIterable = [];
-
+const keys = {
+  "a": false,
+  "d": false,
+  "arrowLeft": false,
+  "arrowRight": false
+  
+}
 function updateInventoryIterable() {
   inventoryIterable = [];
   let keys = Object.keys(inventory);
@@ -166,6 +172,13 @@ function update() {
     if (frame % speed == 0) {
       cell1.move(0, 1);
       cell1.drawpreview();
+    }
+    if (frame % 2 == 0){
+      if (keys.a){
+        if (!menuOpen) {
+      cell1.move(-1, 0);
+    }
+      }
     }
     if (frame % 20 == 0) {
       timer++;
@@ -235,9 +248,15 @@ function fastUpdate() {
 setInterval(update, 50);
 window.addEventListener("keydown", (event) => {
   if (event.key == "a") {
+    keys.a = true;
     if (!menuOpen) {
       cell1.move(-1, 0);
     }
+  }
+});
+window.addEventListener("keyup", (event) => {
+  if (event.key == "a") {
+    keys.a = false;
   }
 });
 window.addEventListener("keydown", (event) => {
