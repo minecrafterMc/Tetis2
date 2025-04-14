@@ -115,6 +115,7 @@ var money = 0;
 var wave = 0;
 var timeLimit = 30;
 var income = 1;
+var legacyMode = gameData.legacy;
 var menuBlocked = false;
 var menuOpen = false;
 var pause = false;
@@ -168,8 +169,12 @@ function update() {
     }
     if (frame % 20 == 0) {
       timer++;
-      timerElement.innerHTML = timer + "/" + timeLimit;
-      if (timer == timeLimit) {
+      if (!legacyMode){
+      timerElement.innerHTML = timer +"/" + timeLimit;}
+      else {
+        timerElement.innerHTML = timer;
+      }
+      if (timer == timeLimit && !legacyMode) {
         wave++;
         timer = 0;
         pause = true;
@@ -203,8 +208,10 @@ function update() {
       }
     }
     cell1.draw();
-    
+    if (!legacyMode){
     moneyElement.innerHTML = money + "$<br>";
+      
+    }
     if (frame % Math.ceil(speed / 3) == 0) {
       game.detectFullRow();
       game.detectFullBoard();
@@ -329,6 +336,9 @@ function buildTutorial(close) {
           tutorialStep++;
           buildTutorial("auto");
         }
+      }
+      else{
+        gameData.tutorialEnabled = false;
       }
       }
       

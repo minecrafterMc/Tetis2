@@ -37,10 +37,11 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
   <center>
     <img width="350" src="assets/TetisLogo.png" />
     <br /><br /><br />
-    <button onclick="startcustommode(-1,250,'classic',1,1,0,0,false)">
-      Play Classic</button><br /><button onclick="startcustommode(-1,250,'classic',1,1,0,0,true)">
-  Play Tutorial</button><br>
-    <button onclick="ndef.scan();" class="button-other">
+    <button onclick="startcustommode(-1,250,'classic',1,1,0,0,false,false)">
+      Play Classic</button><br /><button onclick="startcustommode(-1,250,'classic',1,1,0,0,true,false)">
+  Play Tutorial</button><br><button onclick="startcustommode(-1,250,'legacy',1,1,0,0,false,true)">
+      Play Legacy</button><br>
+    <button onclick="" class="button-other">
       Bonus Modes<br>(coming in 1.1)</button><br>
     <button class="button-other">
       Mode Editor<br />(coming later)
@@ -57,7 +58,8 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
       multi,
       pointpenalty,
       timepenalty,
-      tutorial
+      tutorial,
+      legacy
     ) {
       sessionStorage.setItem(
         "gdata",
@@ -69,6 +71,7 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
           multi: multi,
           ppenalty: pointpenalty,
           tpenalty: timepenalty,
+          legacy:legacy,
           colors: [
           {
             name: "tetis 2 option 1",
