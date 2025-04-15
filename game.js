@@ -426,10 +426,10 @@ window.addEventListener("keydown", (event) => {
 function sendFeedback(type){
   let feedback;
   if (type == "bug"){
-  feedback = prompt("Describe what's wrong:");
+  feedback = prompt("(you can submit feednack in english and polish)\nDescribe what's wrong:");
   }
   else{
-  feedback = prompt("Describe your feedback:");
+  feedback = prompt("(you can submit feednack in english and polish)\nDescribe your feedback:");
   }
   if (feedback != null) {
     fetch(atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTMyOTczMDUzMzA5NzM0MDk2OC9YR29TQjBzSUM2S0tjMWZNVmdzV1VyUGdINnJlSUFmcTRlWlpFN0V6eHhONzVRTVNSYWlXQUc5WU1HOHYzZXEtTVFqMQ=="), {
