@@ -103,7 +103,7 @@ const RegisteredItems = [
       this.owned = false;
     },AbilityRegistries.onWaveEnd),
     new Ability(6,"Increase Speed","increases game speed and income",10,0,function(){
-      if (speed > 0){
+      if (speed > 1){
         speed -= 1;
         income++;
       }
@@ -116,6 +116,14 @@ this.owned = false;
     new Ability(7,"Decrese Speed","decreases game speed",50,0,function(){
       speed++;
     this.owned = false;
+
+    },function(){},
+    AbilityRegistries.passive),
+    new Ability(8,"Upgrade Shop","adds an additional slot to the shop",50,0,function(){
+      shopOptions++
+      generateShop();
+      BuildMenu();
+      this.owned = false;
 
     },function(){},
     AbilityRegistries.passive)
@@ -145,6 +153,7 @@ var wave = 0;
 var timeLimit = 30;
 var income = 1;
 var collectedMoney = 0;
+var shopOptions = 4;
 var legacyMode = gameData.legacy;
 var menuBlocked = false;
 var menuOpen = false;
@@ -165,7 +174,7 @@ const pressedKeys = {
   
 }
 
-if (localStorage.getItem("playedTetis2Tutorial") == null){
+if (localStorage.getItem("playedTetis2Tutorial") == null && !gameData.tutorialEnabled){
   menu = -1;
   pause = true;
   menuOpen = true;
@@ -367,6 +376,7 @@ window.addEventListener("keyup", (event) => {
 });
 window.addEventListener("keydown", (event) => {
   if (event.key == "e") {
+    if (TutorialElement.style.display == "none" || !gameData.tutorialEnabled) {
     if (!menuOpen) {
       pause = !pause;
       menuOpen = !menuOpen;
@@ -376,11 +386,32 @@ window.addEventListener("keydown", (event) => {
       navigateMenu("select");
     }
   }
+  else{
+    if (gameData.tutorialEnabled){
+      if (eval(gameData.tutorial[tutorialStep].condition)) {
+        eval(gameData.tutorial[tutorialStep].afterAction);
+        TutorialElement.style.display = "none";
+        if (tutorialStep != gameData.tutorial.length -1){
+        if (gameData.tutorial[tutorialStep + 1].appear == "auto") {
+          tutorialStep++;
+          buildTutorial("auto");
+        }
+      }
+      else{
+        gameData.tutorialEnabled = false;
+        localStorage.setItem("playedTetis2Tutorial",true);
+        sessionStorage.setItem("gdata",JSON.stringify(gameData));
+        BuildMenu();
+      }
+      }
+    }
+  }
+}
 });
 
 function generateShop() {
   Items = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < shopOptions; i++) {
     let item;
     do{ 
     item = RegisteredItems[RandomInt(0, RegisteredItems.length - 1)];
@@ -430,7 +461,9 @@ function buildTutorial(close) {
       }
       else{
         gameData.tutorialEnabled = false;
-        localStorage.setItem("playedTetis2Tutorial",true)
+        localStorage.setItem("playedTetis2Tutorial",true);
+        sessionStorage.setItem("gdata",JSON.stringify(gameData));
+        BuildMenu();
       }
       }
       

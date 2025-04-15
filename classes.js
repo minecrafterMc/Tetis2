@@ -472,7 +472,6 @@ class Ability {
     this.cooldown = cooldown;
     this.onActivate = onActivate;
     this.onBuy = onBuy;
-    //this.onBuy.bind(this);
     this.registry = registry;
     this.owned = false;
     this.lastUsed = -5;
@@ -480,7 +479,6 @@ class Ability {
     this.data = {};
   }
   buy() {
-    console.log(this);
     if (money >= this.price) {
       money -= this.price;
       this.owned = true;
