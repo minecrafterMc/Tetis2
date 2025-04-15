@@ -449,7 +449,6 @@ class ItemCountable extends Item {
     this.count = 0;
   }
   buy() {
-    console.log(this);
     if (money >= this.price) {
       money -= this.price;
       this.owned = true;
@@ -473,16 +472,18 @@ class Ability {
     this.cooldown = cooldown;
     this.onActivate = onActivate;
     this.onBuy = onBuy;
+    //this.onBuy.bind(this);
     this.registry = registry;
     this.owned = false;
     this.lastUsed = -5;
     this.id = id;
     this.data = {};
-    
   }
   buy() {
+    console.log(this);
     if (money >= this.price) {
       money -= this.price;
+      this.owned = true;
       this.onBuy();
       this.registry[this.id] = this;
       return { success: true, message: "Ability bought" };

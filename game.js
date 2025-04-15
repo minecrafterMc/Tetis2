@@ -14,7 +14,7 @@ const AbilityRegistries = {
   onitemUse: [],
   onWaveEnd: [],
   passive: [],
-  run: (cat) => {
+  run: function(cat){
     let iterable = [];
     let keys = Object.keys(AbilityRegistries[cat]);
     for (let i = 0; i < keys.length; i++) {
@@ -34,66 +34,71 @@ const RegisteredItems = [
     "adds a new column to the board and adds 1 to your income",
     10,
     10,
-    () => {
+    function(){
       game.boardWidth += 1;
       income += 1;
       this.owned = false;
     },
-    () => {},
+    function(){},
     AbilityRegistries.passive
   ),
   new Ability(
-    0,
+    1,
     "expand timer",
     "makes the time limit longer by 10 seconds",
     5,
     10,
-    () => {
+    function(){
       timeLimit += 10;
       this.owned = false;
     },
-    () => {},
+    function(){},
     AbilityRegistries.passive
   ),
   new Ability(
-    0,
+    2,
     "Increase board height",
     "Makes the board higher",
     20,
     10,
-    () => {
+    function(){
       game.boardHeight = game.BoardHeight + 1;
       this.owned = false;
     },
-    () => {},
+    function(){},
     AbilityRegistries.passive
   ),
   new ItemCountable(
-    1,
+    3,
     "Gold",
     "Gold is a safe investment. it doesen't disapear after death, and can be sold for half of its price",
     2,
     0,
-    () => {
+    function(){
       money += 1;
     },
-    () => {},
-    () => {
+    function(){},
+    function(){
       return "";
     }
   ),
-    new Ability(1,"Double Income","Speeds up the game and doubles collected money for the next wave",30,0,() => {
+    new Ability(4,"Double Income","Speeds up the game and doubles collected money for the next wave",30,0,
+    function(){
       this.oldSpeed = speed;
       speed /= 2;
-    },() => {
+      console.log(this)
+    },
+    function(){
       collectedMoney *= 2;
       speed = this.oldSpeed;
       this.owned = false;
     },AbilityRegistries.onWaveEnd),
-    new Ability(1,"Slow motion","Slows down the game for the next wave",20,0,() => {
+    new Ability(5,"Slow motion","Slows down the game for the next wave",20,0,
+    function(){
       this.oldSpeed = speed;
       speed *= 2;
-    },() => {
+    },
+    function(){
       speed = this.oldSpeed;
       this.owned = false;
     },AbilityRegistries.onWaveEnd)
@@ -269,17 +274,7 @@ function update() {
   }
 }
 
-function fastUpdate() {
-  if (!pause) {
-    if (fastFrame % speed == 0) {
-      cell1.move(0, 1);
-      cell1.drawpreview();
-    }
-    game.drawBoard(cell1.drawpreview());
-    cell1.draw();
-    fastFrame++;
-  }
-}
+
 setInterval(update, 50);
 window.addEventListener("keydown", (event) => {
   if (event.key == "a") {
@@ -823,8 +818,9 @@ function BuildMenu() {
       menuChoices[i + 1].push(document.createElement("div"));
       menuChoices[i + 1][1].className = "menu-choice";
       menuChoices[i + 1].push(() => {
-        Items[i].buy();
+        RegisteredItems[Items[i].id].buy();
         BuildRightMenu(8);
+        BuildMenu();
       });
       menuChoices[i + 1].push(
         Items[i] instanceof ItemCountable ? true : !Items[i].owned
