@@ -12,6 +12,7 @@ const AbilityRegistries = {
   onLineClear: [],
   onBlockFall: [],
   onitemUse: [],
+  onWaveEnd: [],
   passive: [],
   run: (cat) => {
     let iterable = [];
@@ -26,22 +27,7 @@ const AbilityRegistries = {
 };
 
 const RegisteredItems = [
-  
-  
-  new Item(
-    0,
-    "clear",
-    "clears the board",
-    10,
-    10,
-    () => {
-      game.resetBoard();
-    },
-    () => {},
-    () => {
-      return "";
-    }
-  ),
+ 
   new Ability(
     0,
     "increase income",
@@ -69,6 +55,19 @@ const RegisteredItems = [
     () => {},
     AbilityRegistries.passive
   ),
+  new Ability(
+    0,
+    "Increase board height",
+    "Makes the board higher",
+    20,
+    10,
+    () => {
+      game.boardHeight = game.BoardHeight + 1;
+      this.owned = false;
+    },
+    () => {},
+    AbilityRegistries.passive
+  ),
   new ItemCountable(
     1,
     "Gold",
@@ -83,14 +82,21 @@ const RegisteredItems = [
       return "";
     }
   ),
-  new Ability(1, "clear", "clears the screen whenever a line is cleared", 1, 0, () => {}, () => { game.resetBoard() }, AbilityRegistries.onLineClear),
-  new Item(2, "TnT", "blows up", 1, 5, () => {
-    let sy = cell1.originy + Math.floor(cell1.shape.pattern2d.length / 2);
-    let sx = cell1.originx + Math.floor(cell1.shape.width / 2);
-    for (let i = 0; i < 9; i++) {
-      board[sx + (1 - Math.floor(i % 3))][sy + (1 - Math.floor(i / 3))] = 0;
-    }
-  }, () => {}, () => {})
+    new Ability(1,"Double Income","Speeds up the game and doubles collected money for the next wave",30,0,() => {
+      this.oldSpeed = speed;
+      speed /= 2;
+    },() => {
+      collectedMoney *= 2;
+      speed = this.oldSpeed;
+      this.owned = false;
+    },AbilityRegistries.onWaveEnd),
+    new Ability(1,"Slow motion","Slows down the game for the next wave",20,0,() => {
+      this.oldSpeed = speed;
+      speed *= 2;
+    },() => {
+      speed = this.oldSpeed;
+      this.owned = false;
+    },AbilityRegistries.onWaveEnd)
   
 ];
 var Items = [
@@ -116,6 +122,7 @@ var money = 0;
 var wave = 0;
 var timeLimit = 30;
 var income = 1;
+var collectedMoney = 0;
 var legacyMode = gameData.legacy;
 var menuBlocked = false;
 var menuOpen = false;
@@ -212,6 +219,9 @@ function update() {
         timerElement.innerHTML = timer;
       }
       if (timer == timeLimit && !legacyMode) {
+        AbilityRegistries.run("onWaveEnd");
+        money += collectedMoney;
+        collectedMoney = 0;
         wave++;
         timer = 0;
         pause = true;
@@ -246,7 +256,7 @@ function update() {
     }
     cell1.draw();
     if (!legacyMode){
-    moneyElement.innerHTML = money + "$<br>";
+    moneyElement.innerHTML = collectedMoney + "$<br>";
       
     }
     if (frame % Math.ceil(speed / 3) == 0) {

@@ -126,7 +126,7 @@ class gameManager {
         for (let j = 0; j < this.boardWidth; j++) {
           board[j][i] = 0;
         }
-        money += income;
+        collectedMoney += income;
         AbilityRegistries.run("onLineClear");
         if (gameData.tutorialEnabled) {
           if (eval(gameData.tutorial[tutorialStep].condition)) {
@@ -165,6 +165,7 @@ class gameManager {
     }
   }
   loose(){
+    alert("you didn't make the quota (better message coming in full release)")
     location.reload();
   }
   
@@ -427,6 +428,7 @@ class Item {
     this.onBuy = onBuy;
     this.customInventoryText = customInventoryText;
     this.id = id;
+    this.data = {};
   }
   buy() {
     if (money >= this.price) {
@@ -475,6 +477,7 @@ class Ability {
     this.owned = false;
     this.lastUsed = -5;
     this.id = id;
+    this.data = {};
     
   }
   buy() {
