@@ -392,6 +392,7 @@ class Shape {
     }
     let newWidth = new2dPattern[0].length;
     let canRotate = true;
+    try{
     for (let i = 0; i < newPattern.length; i++) {
       if (
         board[this.originX + (i % newWidth)][
@@ -401,6 +402,10 @@ class Shape {
         canRotate = false;
       }
     }
+  }
+  catch{
+    canRotate = false;
+  }
     if (canRotate) {
       this.onFall(
         "rotate", { pattern: newPattern, width: newWidth, name: this.shape.name },

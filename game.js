@@ -107,6 +107,7 @@ var quotas = [
 var mobile = navigator.appVersion.indexOf("Android") != -1 || navigator.appVersion.indexOf("ios") != -1;
 var lastFrame = Date.now();
 var frame = 0;
+var inputFrame = 0;
 var fastFrame = 0;
 var timer = 0;
 var speed = 4;
@@ -134,7 +135,7 @@ const pressedKeys = {
   "arrowRight": false
   
 }
-console.log(localStorage.getItem("playedTetis2Tutorial"))
+
 if (localStorage.getItem("playedTetis2Tutorial") == null){
   menu = -1;
   pause = true;
@@ -181,10 +182,25 @@ function update() {
       cell1.move(0, 1);
       cell1.drawpreview();
     }
-    if (frame % 5 == 0){
+    if (inputFrame > 0){
       if (pressedKeys.a){
         if (!menuOpen) {
       cell1.move(-1, 0);
+    }
+      }
+      if (pressedKeys.d){
+        if (!menuOpen) {
+      cell1.move(1, 0);
+    }
+      }
+      if (pressedKeys.arrowLeft){
+        if (!menuOpen) {
+      cell1.rotate("left");
+    }
+      }
+      if (pressedKeys.arrowRight){
+        if (!menuOpen) {
+      cell1.rotate("right");
     }
       }
     }
@@ -239,6 +255,7 @@ function update() {
     }
     
     frame++;
+    inputFrame++;
   }
 }
 
@@ -259,6 +276,7 @@ window.addEventListener("keydown", (event) => {
     pressedKeys.a = true;
     if (!menuOpen) {
       cell1.move(-1, 0);
+      inputFrame = -2;
     }
   }
 });
@@ -269,9 +287,16 @@ window.addEventListener("keyup", (event) => {
 });
 window.addEventListener("keydown", (event) => {
   if (event.key == "d") {
+    pressedKeys.d = true;
     if (!menuOpen) {
       cell1.move(1, 0);
+      inputFrame = -2;
     }
+  }
+});
+window.addEventListener("keyup", (event) => {
+  if (event.key == "d") {
+    pressedKeys.d = false;
   }
 });
 window.addEventListener("keydown", (event) => {
@@ -292,12 +317,30 @@ window.addEventListener("keydown", (event) => {
 });
 window.addEventListener("keydown", (event) => {
   if (event.key == "ArrowLeft") {
-    cell1.rotate("left");
+    pressedKeys.arrowLeft = true;
+    if (!menuOpen) {
+      cell1.rotate("left");
+      inputFrame = -2;
+    }
+  }
+});
+window.addEventListener("keyup", (event) => {
+  if (event.key == "ArrowLeft") {
+    pressedKeys.arrowLeft = false;
   }
 });
 window.addEventListener("keydown", (event) => {
   if (event.key == "ArrowRight") {
-    cell1.rotate("right");
+    pressedKeys.arrowRight = true;
+    if (!menuOpen) {
+      cell1.rotate("right");
+      inputFrame = -2;
+    }
+  }
+});
+window.addEventListener("keyup", (event) => {
+  if (event.key == "ArrowRight") {
+    pressedKeys.arrowRight = false;
   }
 });
 window.addEventListener("keydown", (event) => {
