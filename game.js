@@ -30,7 +30,7 @@ const RegisteredItems = [
  
   new Ability(
     0,
-    "increase income",
+    "Increase board width",
     "adds a new column to the board and adds 1 to your income",
     10,
     10,
@@ -44,7 +44,7 @@ const RegisteredItems = [
   ),
   new Ability(
     1,
-    "expand timer",
+    "Expand Timer",
     "makes the time limit longer by 10 seconds",
     5,
     10,
@@ -101,7 +101,24 @@ const RegisteredItems = [
     function(){
       speed = this.oldSpeed;
       this.owned = false;
-    },AbilityRegistries.onWaveEnd)
+    },AbilityRegistries.onWaveEnd),
+    new Ability(6,"Increase Speed","increases game speed and income",10,0,function(){
+      if (speed > 0){
+        speed -= 1;
+        income++;
+      }
+      else {
+  money += this.price;
+}
+this.owned = false;
+    },function(){},
+    AbilityRegistries.passive),
+    new Ability(7,"Decrese Speed","decreases game speed",50,0,function(){
+      speed++;
+    this.owned = false;
+
+    },function(){},
+    AbilityRegistries.passive)
   
 ];
 var Items = [
@@ -190,7 +207,7 @@ function generateShape(reason) {
 function update() {
   if (!pause) {
     game.drawBoard(cell1.drawpreview());
-    if (frame % speed == 0) {
+    if (frame % Math.ceil(speed) == 0) {
       cell1.move(0, 1);
       cell1.drawpreview();
     }
