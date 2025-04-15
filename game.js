@@ -134,6 +134,14 @@ const pressedKeys = {
   "arrowRight": false
   
 }
+console.log(localStorage.getItem("playedTetis2Tutorial"))
+if (localStorage.getItem("playedTetis2Tutorial") == null){
+  menu = -1;
+  pause = true;
+  menuOpen = true;
+  switchMenu();
+  BuildRightMenu(-1);
+}
 function updateInventoryIterable() {
   inventoryIterable = [];
   let keys = Object.keys(inventory);
@@ -357,6 +365,7 @@ function buildTutorial(close) {
       }
       else{
         gameData.tutorialEnabled = false;
+        localStorage.setItem("playedTetis2Tutorial",true)
       }
       }
       
@@ -368,6 +377,9 @@ function buildTutorial(close) {
 function BuildRightMenu(menuId) {
   updateInventoryIterable();
   RightMenuElement.innerHTML = "";
+  if (menuId == -1){
+    RightMenuElement.innerHTML = "<h3>you haven't played the tutorial yet. I really recommend playing it to understand how to play the game.<br><br>Would you like to play the tutorial?<br><br>(you can always replay the tutorial from the main menu)</h>"
+  }
   if (menuId == 0) {
     RightMenuElement.innerHTML =
       "<h1>wave: " +
@@ -491,6 +503,57 @@ function BuildRightMenu(menuId) {
 function BuildMenu() {
   updateInventoryIterable();
   LeftMenuElement.innerHTML = "";
+  if (menu == -1){
+    menuChoices = [["yes"],["no"]];
+    let rightMenus = [-1,-1];
+    for (let i = 0; i < menuChoices.length; i++) {
+  menuChoices[i].push(document.createElement("div"));
+  menuChoices[i][1].className ="menu-choice";
+  menuChoices[i].push(() => {
+    if (i == 0){
+      gameData.tutorialEnabled = true;
+      sessionStorage.setItem("gdata",JSON.stringify(gameData));
+      
+      location.reload();
+    }
+      menuOpen = false;
+      pause = false;
+    switchMenu();
+    buildTutorial();
+    localStorage.setItem("playedTetis2Tutorial",true);
+  });
+  menuChoices[i].push(true);
+  menuChoices[i][1].innerHTML = menuChoices[i][0];
+  menuChoices[i][4] = rightMenus[i];
+  menuChoices[i][1].onclick = () => {
+    if (mobile) {
+      if (menuPointer != i) {
+        menuPointer = i;
+        BuildRightMenu(menuChoices[i][4]);
+        navigateMenu("update");
+      }
+      else {
+        if (menuChoices[i][3]) {
+          menuChoices[i][2]();
+        }
+      }
+    }
+    else {
+      if (menuChoices[i][3]) {
+        menuChoices[i][2]();
+      }
+    }
+  };
+  menuChoices[i][1].onmousemove = () => {
+    if (!mobile) {
+      
+      menuPointer = i;
+      navigateMenu("update");
+    }
+  };
+  LeftMenuElement.appendChild(menuChoices[i][1]);
+}
+  }
   if (menu == 0) {
     menuChoices = [
       [shopOpen ? "Start next wave" : "Resume"],
