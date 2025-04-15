@@ -95,25 +95,27 @@ const RegisteredItems = [
       collectedMoney *= 2;
       speed = this.oldSpeed;
       this.owned = false;
+      AbilityRegistries.onWaveEnd[this.id] = undefined;
     },AbilityRegistries.onWaveEnd),
     new Ability(5,"Slow motion","Slows down the game for the next wave",20,0,
-    function(){
-      this.oldSpeed = speed;
-      speed *= 2;
-    },
-    function(){
-      speed = this.oldSpeed;
-      this.owned = false;
-    },AbilityRegistries.onWaveEnd),
-    new Ability(6,"Increase Speed","increases game speed and income",10,0,function(){
-      if (speed > 1){
-        speed -= 1;
-        income++;
-      }
-      else {
-  money += this.price;
-}
-this.owned = false;
+      function(){
+        this.oldSpeed = speed;
+        speed *= 2;
+      },
+      function(){
+        speed = this.oldSpeed;
+        this.owned = false;
+      },AbilityRegistries.onWaveEnd),
+      new Ability(6,"Increase Speed","increases game speed and income",10,0,function(){
+        if (speed > 1){
+          speed -= 1;
+          income++;
+        }
+        else {
+          money += this.price;
+        }
+        this.owned = false;
+        AbilityRegistries.onWaveEnd[this.id] = undefined;
     },function(){},
     AbilityRegistries.passive),
     new Ability(7,"Decrese Speed","decreases game speed",50,0,function(){
