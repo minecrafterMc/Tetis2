@@ -3,6 +3,9 @@ if (sessionStorage.getItem("gdata")) {
 } else {
   location.href = "index.html";
 }
+if (sessionStorage.getItem("testerMode")){
+  gameData.testerMode = sessionStorage.getItem("testerMode");
+}
 const paletes = gameData.colors;
 var currentPalete = 0;
 const blocks = gameData.blocks;
@@ -408,7 +411,55 @@ window.addEventListener("keydown", (event) => {
   }
 }
 });
-
+if (gameData.testerMode){
+window.addEventListener("keydown", (event) => {
+  if (event.key == "b") {
+    sendFeedback("bug");
+  }
+});
+window.addEventListener("keydown", (event) => {
+  if (event.key == "n") {
+    sendFeedback("feedback");
+  }
+});
+}
+function sendFeedback(type){
+  let feedback;
+  if (type == "bug"){
+  feedback = prompt("Describe what's wrong:");
+  }
+  else{
+  feedback = prompt("Describe your feedback:");
+  }
+  if (feedback != null) {
+    fetch(atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTMyOTczMDUzMzA5NzM0MDk2OC9YR29TQjBzSUM2S0tjMWZNVmdzV1VyUGdINnJlSUFmcTRlWlpFN0V6eHhONzVRTVNSYWlXQUc5WU1HOHYzZXEtTVFqMQ=="), {
+      method: "POST",
+      body: JSON.stringify({
+        "content": `\n\n\n\n\n\n\n--------------------------------\n${type}\n${feedback}\n--\n${JSON.stringify(game)}`,
+        "embeds": null,
+        "username": "Tetis2 tester feedback",
+        "attachments": []
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    fetch(atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTMyOTczMDUzMzA5NzM0MDk2OC9YR29TQjBzSUM2S0tjMWZNVmdzV1VyUGdINnJlSUFmcTRlWlpFN0V6eHhONzVRTVNSYWlXQUc5WU1HOHYzZXEtTVFqMQ=="), {
+      method: "POST",
+      body: JSON.stringify({
+        "content": `\n--\n${JSON.stringify(board)}\n--\n${JSON.stringify({originX:cell1.originX,originY:cell1.originY,shape:cell1.shape})}\n--\n${JSON.stringify({"frame":frame,"speed":speed,"tutorialStep":tutorialStep,'timer':timer,'money':money,"income":income,"mobile":mobile,"wave":wave,"timeLimit":timeLimit,"collectedMoney":collectedMoney,"legacyMode":legacyMode,"menuOpen":menuOpen,"menuPointer":menuPointer,"menuBlocked":menuBlocked,"pause":pause,"shopOpen":shopOpen})}`,
+        "embeds": null,
+        "username": "Tetis2 tester feedback",
+        "attachments": []
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    alert("Feedback sent!\nThank you for your help!\nIf you have questions, suggestions or you wanna explain your feedback, please contact me on discord: @minecraftermc");
+  }
+}
+//
 function generateShop() {
   Items = [];
   for (let i = 0; i < shopOptions; i++) {
@@ -660,7 +711,7 @@ function BuildMenu() {
       ["colors"],
       ["Quota"],
     ];
-    let rightMenus = [0, 1, 2, 3, 4];
+    let rightMenus = [0, 1, 2, 3, 9];
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i].push(document.createElement("div"));
       menuChoices[i][1].className =

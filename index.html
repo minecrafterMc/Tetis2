@@ -50,6 +50,11 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
     <p>v. alpha 0.1</p>
   </center>
   <script>
+    var url = new URLSearchParams(window.location.search);
+    if (url.has("t")){
+      sessionStorage.setItem("testerMode",true);
+      alert("Thank you for testing my game!\nIf you find any bugs, press the b button to send a report\nIf you want to share an opinion, press the n button to send feedback\nBE AS CRITICAL AS POSSIBLE if you don't like something, tell me");
+    }
     function startcustommode(
       time,
       speed,
