@@ -137,7 +137,10 @@ const RegisteredItems = [
       defyDeath = true;
       this.owned = false;
     },
-    AbilityRegistries.onWaveDeath,{amountBought:0})
+    AbilityRegistries.onWaveDeath,{amountBought:0}),
+    new Ability(10,"Small block","unlocks a 1x1 block as a shape",100,0,function(){
+      blocks.push({ pattern: [true], width: 1, name: "1x1" });
+    },function(){},AbilityRegistries.passive)
   
 ];
 var Items = [
