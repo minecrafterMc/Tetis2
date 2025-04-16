@@ -199,6 +199,16 @@ function updateInventoryIterable() {
   for (let i = 0; i < keys.length; i++) {
     inventoryIterable.push(inventory[keys[i]]);
   }
+  keys = Object.keys(AbilityRegistries);
+  for (let i = 0; i < keys.length - 1; i++) {
+    for (let j =0;j<AbilityRegistries[keys[i]].length;j++){
+      if (AbilityRegistries[keys[i]][j] != undefined){
+      if (AbilityRegistries[keys[i]][j].owned){
+        inventoryIterable.push(AbilityRegistries[keys[i]][j]);
+      }
+    }
+  }
+}
 }
 var cell1 = new Shape(blocks[0], 0, 0, generateShape, game);
 cell1.draw();
@@ -261,7 +271,7 @@ function update() {
       else {
         timerElement.innerHTML = timer;
       }
-      if (timer == timeLimit && !legacyMode) {
+      if (timer >= timeLimit && !legacyMode) {
         AbilityRegistries.run("onWaveEnd");
         money += collectedMoney;
         collectedMoney = 0;
@@ -287,6 +297,7 @@ function update() {
           }
         }
         generateShop();
+        menu = 0;
         switchMenu();
       }
     }
@@ -610,13 +621,13 @@ function BuildRightMenu(menuId) {
           "0") +
         "</h1><br>";
     }
-    if (inventoryIterable[menuPointer - 1] instanceof ItemCountable) {
+    if (inventoryIterable[menuPointer - 1] instanceof ItemCountable || inventoryIterable[menuPointer - 1] instanceof AbilityCountable) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>Owned: " +
         inventoryIterable[menuPointer - 1].count +
         "</h1><br>";
     }
-    if (inventoryIterable[menuPointer - 1].customInventoryText() != undefined) {
+    if (inventoryIterable[menuPointer - 1].customInventoryText != undefined) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>" +
         inventoryIterable[menuPointer - 1].customInventoryText() +
@@ -641,7 +652,7 @@ function BuildRightMenu(menuId) {
       "<h1 class='itemDisplay'>Price: " +
       Items[menuPointer - 1].price +
       "$</h1><br>";
-    if (Items[menuPointer - 1] instanceof ItemCountable) {
+    if (inventoryIterable[menuPointer - 1] instanceof ItemCountable || inventoryIterable[menuPointer - 1] instanceof AbilityCountable) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>Owned: " +
         Items[menuPointer - 1].count +
@@ -823,7 +834,7 @@ function BuildMenu() {
     for (let i = 0; i < inventoryIterable.length; i++) {
       menuChoices.push([inventoryIterable[i].name]);
       menuChoices[i + 1].push(document.createElement("div"));
-      menuChoices[i + 1][1].className = shopOpen ?
+      menuChoices[i + 1][1].className = shopOpen || inventoryIterable[i] instanceof Ability ?
         "menu-choice-inactive" :
         "menu-choice";
       menuChoices[i + 1].push(() => {
@@ -832,7 +843,7 @@ function BuildMenu() {
             inventoryIterable[i].lastUsed + inventoryIterable[i].cooldown <=
             timer && inventoryIterable[i] instanceof ItemCountable ?
             inventoryIterable[i].count > 0 :
-            true
+            inventoryIterable[i] instanceof Item
           ) {
             inventoryIterable[i].onActivate();
             inventoryIterable[i].lastUsed = timer;
@@ -921,7 +932,7 @@ function BuildMenu() {
     for (let i = 0; i < Items.length; i++) {
       menuChoices.push([
         Items[i].name +
-        (Items[i].owned && !(Items[i] instanceof ItemCountable) ?
+        (Items[i].owned && !(Items[i] instanceof ItemCountable || Items[i] instanceof AbilityCountable) ?
           " (SOLD OUT)" :
           !(Items[i] instanceof AbilityLimited) ? " (" + Items[i].price + "$)" : (Items[i].count < Items[i].maxAmount) ? " (" + Items[i].price + "$)" : " (SOLD OUT)"),
       ]);
@@ -933,7 +944,7 @@ function BuildMenu() {
         BuildMenu();
       });
       menuChoices[i + 1].push(
-        Items[i] instanceof ItemCountable ? true : !Items[i].owned
+        Items[i] instanceof ItemCountable || Items[i] instanceof AbilityCountable ? true : !Items[i].owned
       );
       menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
       menuChoices[i + 1][4] = 8;

@@ -486,7 +486,7 @@ class Ability {
     this.data = data;
   }
   buy() {
-    if (money >= this.price) {
+    if (money >= this.price && !this.owned) {
       money -= this.price;
       this.owned = true;
       this.onBuy();
@@ -507,6 +507,7 @@ class AbilityCountable extends Ability {
     if (money >= this.price) {
       money -= this.price;
       this.onBuy();
+      this.owned = true;
       this.registry[this.id] = this;
       this.registry[this.id].count++;
       return { success: true, message: "Ability bought" };
@@ -525,6 +526,7 @@ class AbilityLimited extends AbilityCountable{
   if (money >= this.price && this.count < this.maxAmount) {
     money -= this.price;
     this.onBuy();
+    this.owned = true;
     this.registry[this.id] = this;
     this.registry[this.id].count++;
     return { success: true, message: "Ability bought" };
