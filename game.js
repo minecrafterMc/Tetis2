@@ -140,7 +140,13 @@ const RegisteredItems = [
     AbilityRegistries.onWaveDeath,{amountBought:0}),
     new Ability(10,"Small block","unlocks a 1x1 block as a shape",100,0,function(){
       blocks.push({ pattern: [true], width: 1, name: "1x1" });
-    },function(){},AbilityRegistries.passive)
+    },function(){},AbilityRegistries.passive),
+    new ItemCountable(11,"Strengthen Gravity","Makes all floating blocks fall",75,0,function(){
+      game.dropFloatingBlocks();
+    },
+    function(){},
+    function(){}
+    )
   
 ];
 var Items = [
@@ -152,9 +158,17 @@ var quotas = [
   80,
   100,
   150,
-  200
+  200,
+  400,
+  700,
+  1000
 ]
 var mobile = navigator.appVersion.indexOf("Android") != -1 || navigator.appVersion.indexOf("ios") != -1;
+if (!mobile){
+  let elements = document.getElementsByClassName("controlls");
+  elements[0].style.display = "none";
+  elements[1].style.display = "none";
+}
 var lastFrame = Date.now();
 var frame = 0;
 var inputFrame = 0;

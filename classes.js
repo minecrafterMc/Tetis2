@@ -131,7 +131,7 @@ class gameManager {
         if (gameData.tutorialEnabled) {
           if (eval(gameData.tutorial[tutorialStep].condition)) {
             
-            if (tutorialStep != 0 && gameData.tutorial[tutorialStep+1].appear == "clearLine"){
+            if (tutorialStep != 0 && gameData.tutorial[tutorialStep + 1].appear == "clearLine") {
               
               tutorialStep++;
               
@@ -156,22 +156,34 @@ class gameManager {
       }
     }
   }
-  detectFullBoard(){
-    for (let i = 0;i<this.BoardWidth;i++){
-      if (board[i][0] == 1){
+  dropFloatingBlocks() {
+    for (let i = 0; i < this.BoardHeight; i++) {
+      for (let j = this.BoardHeight; j >1; j--) {
+        for (let k = 0; k < this.BoardWidth; k++) {
+          if (board[k][j] == 0) {
+            board[k][j] = board[k][j - 1];
+            board[k][j - 1] = 0;
+          }
+        }
+      }
+    }
+  }
+  detectFullBoard() {
+    for (let i = 0; i < this.BoardWidth; i++) {
+      if (board[i][0] == 1) {
         AbilityRegistries.run("onWaveDeath");
-        if (!defyDeath){
+        if (!defyDeath) {
           money = 0;
           this.resetBoard();
         }
-        else{
+        else {
           this.resetBoard();
           defyDeath = false;
         }
       }
     }
   }
-  loose(){
+  loose() {
     alert("you didn't make the quota (better message coming in full release)")
     location.reload();
   }
@@ -351,22 +363,22 @@ class Shape {
     return newBoard;
   }
   moveDown() {
-  let i = 0;
-  let found = false;
-  while (!found) {
-    for (let j = 0; j < this.cells.length; j++) {
-      if (board[this.cells[j].bx][this.cells[j].by + i] == 1 || this.cells[j].by + i >= this.game.boardHeight) {
-        found = true;
-        break;
+    let i = 0;
+    let found = false;
+    while (!found) {
+      for (let j = 0; j < this.cells.length; j++) {
+        if (board[this.cells[j].bx][this.cells[j].by + i] == 1 || this.cells[j].by + i >= this.game.boardHeight) {
+          found = true;
+          break;
+        }
       }
+      i++;
     }
-    i++;
+    for (let j = 0; j < this.cells.length; j++) {
+      board[this.cells[j].bx][this.cells[j].by + i - 2] = 1;
+    }
+    generateShape("fall");
   }
-  for (let j = 0; j < this.cells.length; j++) {
-    board[this.cells[j].bx][this.cells[j].by + i - 2] = 1;
-  }
-  generateShape("fall");
-}
   move(x, y) {
     let canMove = true;
     for (let i = 0; i < this.cells.length; i++) {
@@ -400,20 +412,20 @@ class Shape {
     }
     let newWidth = new2dPattern[0].length;
     let canRotate = true;
-    try{
-    for (let i = 0; i < newPattern.length; i++) {
-      if (
-        board[this.originX + (i % newWidth)][
-          this.originY + Math.floor(i / newWidth)
-        ] == 1 || this.originY + Math.floor(i / newWidth) >= this.game.boardHeight
-      ) {
-        canRotate = false;
+    try {
+      for (let i = 0; i < newPattern.length; i++) {
+        if (
+          board[this.originX + (i % newWidth)][
+            this.originY + Math.floor(i / newWidth)
+          ] == 1 || this.originY + Math.floor(i / newWidth) >= this.game.boardHeight
+        ) {
+          canRotate = false;
+        }
       }
     }
-  }
-  catch{
-    canRotate = false;
-  }
+    catch {
+      canRotate = false;
+    }
     if (canRotate) {
       this.onFall(
         "rotate", { pattern: newPattern, width: newWidth, name: this.shape.name },
@@ -517,22 +529,22 @@ class AbilityCountable extends Ability {
     }
   }
 }
-class AbilityLimited extends AbilityCountable{
-  constructor(id, name, description, price, maxAmount, cooldown, onBuy, onActivate, registry, data = {}){
+class AbilityLimited extends AbilityCountable {
+  constructor(id, name, description, price, maxAmount, cooldown, onBuy, onActivate, registry, data = {}) {
     super(id, name, description, price, cooldown, onBuy, onActivate, registry, data);
     this.maxAmount = maxAmount;
   }
   buy() {
-  if (money >= this.price && this.count < this.maxAmount) {
-    money -= this.price;
-    this.onBuy();
-    this.owned = true;
-    this.registry[this.id] = this;
-    this.registry[this.id].count++;
-    return { success: true, message: "Ability bought" };
+    if (money >= this.price && this.count < this.maxAmount) {
+      money -= this.price;
+      this.onBuy();
+      this.owned = true;
+      this.registry[this.id] = this;
+      this.registry[this.id].count++;
+      return { success: true, message: "Ability bought" };
+    }
+    else {
+      return { success: false, message: "Not enough money" };
+    }
   }
-  else {
-    return { success: false, message: "Not enough money" };
-  }
-}
 }
