@@ -31,7 +31,7 @@ const AbilityRegistries = {
 
 const RegisteredItems = [
  
-  new Ability(
+  new AbilityCountable(
     0,
     "Increase board width",
     "adds a new column to the board and adds 1 to your income",
@@ -40,12 +40,11 @@ const RegisteredItems = [
     function(){
       game.boardWidth += 1;
       income += 1;
-      this.owned = false;
     },
     function(){},
     AbilityRegistries.passive
   ),
-  new Ability(
+  new AbilityCountable(
     1,
     "Expand Timer",
     "makes the time limit longer by 10 seconds",
@@ -53,12 +52,11 @@ const RegisteredItems = [
     10,
     function(){
       timeLimit += 10;
-      this.owned = false;
     },
     function(){},
     AbilityRegistries.passive
   ),
-  new Ability(
+  new AbilityCountable(
     2,
     "Increase board height",
     "Makes the board higher",
@@ -66,7 +64,6 @@ const RegisteredItems = [
     10,
     function(){
       game.boardHeight = game.BoardHeight + 1;
-      this.owned = false;
     },
     function(){},
     AbilityRegistries.passive
@@ -106,7 +103,7 @@ const RegisteredItems = [
         speed = this.oldSpeed;
         this.owned = false;
       },AbilityRegistries.onWaveEnd),
-      new Ability(6,"Increase Speed","increases game speed and income",10,0,function(){
+      new AbilityCountable(6,"Increase Speed","increases game speed and income",10,0,function(){
         if (speed > 1){
           speed -= 1;
           income++;
@@ -114,21 +111,19 @@ const RegisteredItems = [
         else {
           money += this.price;
         }
-        this.owned = false;
         AbilityRegistries.onWaveEnd[this.id] = undefined;
     },function(){},
     AbilityRegistries.passive),
-    new Ability(7,"Decrese Speed","decreases game speed",50,0,function(){
+    new AbilityCountable(7,"Decrese Speed","decreases game speed",50,0,function(){
       speed++;
-    this.owned = false;
 
     },function(){},
     AbilityRegistries.passive),
-    new Ability(8,"Upgrade Shop","adds an additional slot to the shop",50,0,function(){
-      shopOptions++
+    new AbilityLimited(8,"Upgrade Shop","adds an additional slot to the shop",50,4,0,function(){
+      shopOptions++;
+      this.price = Math.floor(this.price * 1.5);
       generateShop();
       BuildMenu();
-      this.owned = false;
 
     },function(){},
     AbilityRegistries.passive)
@@ -916,7 +911,7 @@ function BuildMenu() {
         Items[i].name +
         (Items[i].owned && !(Items[i] instanceof ItemCountable) ?
           " (SOLD OUT)" :
-          " (" + Items[i].price + "$)"),
+          !(Items[i] instanceof AbilityLimited) ? " (" + Items[i].price + "$)" : (Items[i].count < Items[i].maxAmount) ? " (" + Items[i].price + "$)" : " (SOLD OUT)"),
       ]);
       menuChoices[i + 1].push(document.createElement("div"));
       menuChoices[i + 1][1].className = "menu-choice";

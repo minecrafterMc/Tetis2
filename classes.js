@@ -509,3 +509,21 @@ class AbilityCountable extends Ability {
     }
   }
 }
+class AbilityLimited extends AbilityCountable{
+  constructor(id, name, description, price, maxAmount, cooldown, onBuy, onActivate, registry){
+    super(id, name, description, price, cooldown, onBuy, onActivate, registry);
+    this.maxAmount = maxAmount;
+  }
+  buy() {
+  if (money >= this.price && this.count < this.maxAmount) {
+    money -= this.price;
+    this.onBuy();
+    this.registry[this.id] = this;
+    this.registry[this.id].count++;
+    return { success: true, message: "Ability bought" };
+  }
+  else {
+    return { success: false, message: "Not enough money" };
+  }
+}
+}
