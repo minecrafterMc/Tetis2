@@ -159,8 +159,15 @@ class gameManager {
   detectFullBoard(){
     for (let i = 0;i<this.BoardWidth;i++){
       if (board[i][0] == 1){
-        money = 0;
-        this.resetBoard();
+        AbilityRegistries.run("onWaveDeath");
+        if (!defyDeath){
+          money = 0;
+          this.resetBoard();
+        }
+        else{
+          this.resetBoard();
+          defyDeath = false;
+        }
       }
     }
   }
@@ -465,7 +472,7 @@ class ItemCountable extends Item {
   }
 }
 class Ability {
-  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry) {
+  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, data = {}) {
     this.name = name;
     this.description = description;
     this.price = price;
@@ -476,7 +483,7 @@ class Ability {
     this.owned = false;
     this.lastUsed = -5;
     this.id = id;
-    this.data = {};
+    this.data = data;
   }
   buy() {
     if (money >= this.price) {
@@ -492,8 +499,8 @@ class Ability {
   }
 }
 class AbilityCountable extends Ability {
-  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry) {
-    super(id, name, description, price, cooldown, onBuy, onActivate, registry);
+  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, data = {}) {
+    super(id, name, description, price, cooldown, onBuy, onActivate, registry, data);
     this.count = 0;
   }
   buy() {
@@ -510,8 +517,8 @@ class AbilityCountable extends Ability {
   }
 }
 class AbilityLimited extends AbilityCountable{
-  constructor(id, name, description, price, maxAmount, cooldown, onBuy, onActivate, registry){
-    super(id, name, description, price, cooldown, onBuy, onActivate, registry);
+  constructor(id, name, description, price, maxAmount, cooldown, onBuy, onActivate, registry, data = {}){
+    super(id, name, description, price, cooldown, onBuy, onActivate, registry, data);
     this.maxAmount = maxAmount;
   }
   buy() {

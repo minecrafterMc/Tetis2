@@ -16,6 +16,7 @@ const AbilityRegistries = {
   onBlockFall: [],
   onitemUse: [],
   onWaveEnd: [],
+  onWaveDeath: [],
   passive: [],
   run: function(cat){
     let iterable = [];
@@ -126,7 +127,17 @@ const RegisteredItems = [
       BuildMenu();
 
     },function(){},
-    AbilityRegistries.passive)
+    AbilityRegistries.passive),
+    new Ability(9,"Death Save","Saves you from loosing all of your money after loosing a wave",10,0,
+    function(){
+      this.data.amountBought++;
+      this.price = 10 + this.data.amountBought * 30;
+    },
+    function(){
+      defyDeath = true;
+      this.owned = false;
+    },
+    AbilityRegistries.onWaveDeath,{amountBought:0})
   
 ];
 var Items = [
@@ -154,6 +165,7 @@ var timeLimit = 30;
 var income = 1;
 var collectedMoney = 0;
 var shopOptions = 4;
+var defyDeath = false;
 var legacyMode = gameData.legacy;
 var menuBlocked = false;
 var menuOpen = false;
