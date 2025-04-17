@@ -25,7 +25,9 @@ const AbilityRegistries = {
       iterable[i] = AbilityRegistries[cat][keys[i]];
     }
     for (let i = 0; i < iterable.length; i++) {
+      if (iterable[i] != undefined){
       iterable[i].onActivate();
+      }
     }
   }
 };
