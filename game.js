@@ -202,7 +202,13 @@ const pressedKeys = {
   "arrowRight": false
   
 }
-
+const settings = {
+  "sound": true,
+  "music": true,
+}
+if (settings.music){
+  sounds.music[RandomInt(0,sounds.music.length-1)].play();
+}
 if (localStorage.getItem("playedTetis2Tutorial") == null && !gameData.tutorialEnabled){
   menu = -1;
   pause = true;
@@ -684,6 +690,9 @@ function BuildRightMenu(menuId) {
     RightMenuElement.innerHTML += "<br>amount to pay: " + quotas[currentQuota] + "$";
     RightMenuElement.innerHTML += "<br>payment will be taken automaticlly</h2>"
   }
+  if (menuId == 10) {
+    RightMenuElement.innerHTML = "<h1>"+(["Sound: ","Music: "][menuPointer-1])+([settings.sound,settings.music][menuPointer-1] ? "on" : "off")+"</h1><br>";
+  }
 }
 
 function BuildMenu() {
@@ -747,8 +756,9 @@ function BuildMenu() {
       ["Shop"],
       ["colors"],
       ["Quota"],
+      ["Settings"],
     ];
-    let rightMenus = [0, 1, 2, 3, 9];
+    let rightMenus = [0, 1, 2, 3, 9, 10];
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i].push(document.createElement("div"));
       menuChoices[i][1].className =
@@ -957,6 +967,9 @@ function BuildMenu() {
       menuChoices[i + 1][1].className = "menu-choice";
       menuChoices[i + 1].push(() => {
         RegisteredItems[Items[i].id].buy();
+        if (settings.sound) {
+          sounds.buy[RandomInt(0,sounds.buy.length -1)].play();
+        }
         BuildRightMenu(8);
         BuildMenu();
       });
@@ -1108,6 +1121,79 @@ function BuildMenu() {
         shopOpen ?
         "menu-choice" :
         "menu-choice-inactive" :
+        "menu-choice";
+      menuChoices[i][1].onclick = () => {
+        if (mobile) {
+          if (menuPointer != i) {
+            menuPointer = i;
+            BuildRightMenu(menuChoices[i][4]);
+            navigateMenu("update");
+          }
+          else {
+            if (menuChoices[i][3]) {
+              menuChoices[i][2]();
+            }
+          }
+        }
+        else {
+          if (menuChoices[i][3]) {
+            menuChoices[i][2]();
+          }
+        }
+      };
+      menuChoices[i][1].onmousemove = () => {
+        if (!mobile) {
+          
+          menuPointer = i;
+          navigateMenu("update");
+        }
+      };
+      LeftMenuElement.appendChild(menuChoices[i][1]);
+    }
+  }
+  else if (menu == 5) {
+    menuChoices = [
+      [
+        "Back",
+        document.createElement("div"),
+        () => {
+          menu = 0;
+          switchMenu();
+        },
+        true,
+        5,
+      ],
+      [
+        "Sound",
+        document.createElement("div"),
+        () => {
+          settings.sound = !settings.sound;
+          BuildMenu();
+        },
+        true,
+        10,
+      ],
+      [
+        "Music",
+        document.createElement("div"),
+        () => {
+          settings.music = !settings.music;
+          if (settings.music) {
+            sounds.music[RandomInt(0,1)].play();
+          }
+          else{
+            sounds.music[0].stop();
+            sounds.music[1].stop();
+          }
+          BuildMenu();
+        },
+        true,
+        10,
+      ]
+    ];
+    for (let i = 0; i < menuChoices.length; i++) {
+      menuChoices[i][1].innerHTML = menuChoices[i][0];
+      menuChoices[i][1].className =
         "menu-choice";
       menuChoices[i][1].onclick = () => {
         if (mobile) {

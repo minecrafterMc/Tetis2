@@ -47,6 +47,22 @@ const rightMoveButton = document.getElementById("right-move-button");
 const rightRotButton = document.getElementById("right-rot-button");
 const ctx = canvas.getContext("2d");
 const board = [];
+const sounds = {
+  fall: [new Howl({src:["./assets/audio/fall1.wav"]}),
+  new Howl({src:["./assets/audio/fall2.wav"]}),
+  new Howl({src:["./assets/audio/fall3.wav"]}),
+  new Howl({src:["./assets/audio/fall4.wav"]})],
+  buy: [
+    new Howl({src:["./assets/audio/shop1.wav"]}),
+    new Howl({src:["./assets/audio/shop2.wav"]}),
+    new Howl({src:["./assets/audio/shop3.wav"]}),
+    new Howl({src:["./assets/audio/shop4.wav"]}),
+],
+  music: [
+    new Howl({src:["./assets/audio/Tetis2BGM1.mp3"], loop: true}),
+    new Howl({src:["./assets/audio/Tetis2BGM2.mp3"], loop: true}),
+  ]
+}
 class gameManager {
   constructor(cellWidth, cellHeight, boardWidth, boardHeight, colorPaletes) {
     //capitalised members store information
@@ -338,6 +354,8 @@ class Shape {
     }
     this.game.drawBoard(this.drawpreview());
     this.draw();
+    this.oldSounds = {};
+    this.oldSounds.fall = RandomInt(0, sounds.fall.length - 1);
   }
   draw() {
     for (let i = 0; i < this.cells.length; i++) {
@@ -377,6 +395,14 @@ class Shape {
     for (let j = 0; j < this.cells.length; j++) {
       board[this.cells[j].bx][this.cells[j].by + i - 2] = 1;
     }
+    if (settings.sound){
+      let newSound;
+      do{
+      newSound = RandomInt(0,sounds.fall.length -1);
+    } while (newSound == this.oldSounds.fall);
+      sounds.fall[newSound].play();
+      this.oldSounds.fall = newSound;
+    }
     generateShape("fall");
   }
   move(x, y) {
@@ -387,6 +413,14 @@ class Shape {
       }
       if (!this.cells[i].tryMove(x, y).y) {
         this.cells[i].die();
+        if (settings.sound){
+          let newSound;
+          do{
+          newSound = RandomInt(0,sounds.fall.length -1);
+        } while (newSound == this.oldSounds.fall);
+          sounds.fall[newSound].play();
+          this.oldSounds.fall = newSound;
+        }
       }
     }
     if (canMove) {
