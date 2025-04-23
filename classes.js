@@ -48,19 +48,20 @@ const rightRotButton = document.getElementById("right-rot-button");
 const ctx = canvas.getContext("2d");
 const board = [];
 const sounds = {
-  fall: [new Howl({src:["./assets/audio/fall1.wav"]}),
-  new Howl({src:["./assets/audio/fall2.wav"]}),
-  new Howl({src:["./assets/audio/fall3.wav"]}),
-  new Howl({src:["./assets/audio/fall4.wav"]})],
+  fall: [new Howl({ src: ["./assets/audio/fall1.wav"] }),
+    new Howl({ src: ["./assets/audio/fall2.wav"] }),
+    new Howl({ src: ["./assets/audio/fall3.wav"] }),
+    new Howl({ src: ["./assets/audio/fall4.wav"] })
+  ],
   buy: [
-    new Howl({src:["./assets/audio/shop1.wav"]}),
-    new Howl({src:["./assets/audio/shop2.wav"]}),
-    new Howl({src:["./assets/audio/shop3.wav"]}),
-    new Howl({src:["./assets/audio/shop4.wav"]}),
-],
+    new Howl({ src: ["./assets/audio/shop1.wav"] }),
+    new Howl({ src: ["./assets/audio/shop2.wav"] }),
+    new Howl({ src: ["./assets/audio/shop3.wav"] }),
+    new Howl({ src: ["./assets/audio/shop4.wav"] }),
+  ],
   music: [
-    new Howl({src:["./assets/audio/Tetis2BGM1.mp3"], loop: true}),
-    new Howl({src:["./assets/audio/Tetis2BGM2.mp3"], loop: true}),
+    new Howl({ src: ["./assets/audio/Tetis2BGM1.mp3"], loop: true }),
+    new Howl({ src: ["./assets/audio/Tetis2BGM2.mp3"], loop: true }),
   ]
 }
 class gameManager {
@@ -174,7 +175,7 @@ class gameManager {
   }
   dropFloatingBlocks() {
     for (let i = 0; i < this.BoardHeight; i++) {
-      for (let j = this.BoardHeight; j >1; j--) {
+      for (let j = this.BoardHeight; j > 1; j--) {
         for (let k = 0; k < this.BoardWidth; k++) {
           if (board[k][j] == 0) {
             board[k][j] = board[k][j - 1];
@@ -395,11 +396,11 @@ class Shape {
     for (let j = 0; j < this.cells.length; j++) {
       board[this.cells[j].bx][this.cells[j].by + i - 2] = 1;
     }
-    if (settings.sound){
+    if (settings.sound) {
       let newSound;
-      do{
-      newSound = RandomInt(0,sounds.fall.length -1);
-    } while (newSound == this.oldSounds.fall);
+      do {
+        newSound = RandomInt(0, sounds.fall.length - 1);
+      } while (newSound == this.oldSounds.fall);
       sounds.fall[newSound].play();
       this.oldSounds.fall = newSound;
     }
@@ -413,11 +414,11 @@ class Shape {
       }
       if (!this.cells[i].tryMove(x, y).y) {
         this.cells[i].die();
-        if (settings.sound){
+        if (settings.sound) {
           let newSound;
-          do{
-          newSound = RandomInt(0,sounds.fall.length -1);
-        } while (newSound == this.oldSounds.fall);
+          do {
+            newSound = RandomInt(0, sounds.fall.length - 1);
+          } while (newSound == this.oldSounds.fall);
           sounds.fall[newSound].play();
           this.oldSounds.fall = newSound;
         }
@@ -518,7 +519,7 @@ class ItemCountable extends Item {
   }
 }
 class Ability {
-  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, data = {}) {
+  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, data = {}, canBeRolled = true) {
     this.name = name;
     this.description = description;
     this.price = price;
@@ -530,6 +531,7 @@ class Ability {
     this.lastUsed = -5;
     this.id = id;
     this.data = data;
+    this.canBeRolled = canBeRolled;
   }
   buy() {
     if (money >= this.price && !this.owned) {
@@ -580,5 +582,39 @@ class AbilityLimited extends AbilityCountable {
     else {
       return { success: false, message: "Not enough money" };
     }
+  }
+}
+class Medalion {
+  constructor(id, name, description, price, sellValue, effects, takenSlots = 1, data = {}) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.effects = effects;
+    this.data = data;
+    this.sellValue = sellValue;
+    this.owned = false;
+    this.takenSlots = takenSlots;
+  }
+  buy() {
+    if (money >= this.price && medalionCount  + this.takenSlots <= medalionSlots){
+      money -= this.price;
+    for (let i = 0; i < this.effects.length; i++) {
+      this.effects[i][0][this.id] = this.effects[i][1].bind(this);
+      
+    }
+    this.owned = true;
+    medalions[this.id] = this;
+    medalionCount += this.takenSlots;
+    }
+  }
+  sell() {
+    this.owned = false;
+    money += this.sellValue;
+    for (let i = 0; i < this.effects.length; i++) {
+  this.effects[i][0][this.id] = undefined;
+}
+medalions[this.id] = undefined;
+medalionCount-= this.takenSlots;
   }
 }

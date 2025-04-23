@@ -26,6 +26,9 @@ const AbilityRegistries = {
     }
     for (let i = 0; i < iterable.length; i++) {
       if (iterable[i] != undefined){
+        if (typeof iterable[i] == "function")
+        iterable[i]();
+        else
       iterable[i].onActivate();
       }
     }
@@ -74,7 +77,7 @@ const RegisteredItems = [
   new ItemCountable(
     3,
     "Gold",
-    "Gold is a safe investment. it doesen't disapear after death, and can be sold for half of its price",
+    "Gold doesen't disapear after death, and can be sold for half of its price",
     2,
     0,
     function(){
@@ -148,7 +151,19 @@ const RegisteredItems = [
     },
     function(){},
     function(){}
-    )
+    ),
+    new Medalion(12,"test","test",10,5,[
+      [AbilityRegistries.onLineClear,function(){
+        console.log(this);
+      }],[AbilityRegistries.onWaveEnd,function(){
+        console.log("test");
+      }]
+    ]),
+    new Ability(13,"reroll","rerolls the shop",10,0,function(){
+  generateShop();
+  BuildMenu()
+  this.owned = false;
+},function(){},AbilityRegistries.passive,{},false)
   
 ];
 var Items = [
@@ -197,6 +212,10 @@ var menuChoices = [];
 var shapeSpawnPosition = 0;
 var inventory = {};
 var inventoryIterable = [];
+var medalionSlots = 3;
+var medalionCount = 0;
+var medalions = [];
+var medalionsIterable = [];
 const pressedKeys = {
   "a": false,
   "d": false,
@@ -234,6 +253,15 @@ function updateInventoryIterable() {
     }
   }
 }
+updateMedalionsIterable();
+}
+function updateMedalionsIterable() {
+  medalionsIterable = [];
+  let keys = Object.keys(medalions);
+  for (let i = 0; i < keys.length; i++) {
+    if (medalions[keys[i]] != undefined)
+    medalionsIterable.push(medalions[keys[i]]);
+  }
 }
 var cell1 = new Shape(blocks[0], 0, 0, generateShape, game);
 cell1.draw();
@@ -504,15 +532,14 @@ function sendFeedback(type){
     alert("Feedback sent!\nThank you for your help!\nIf you have questions, suggestions or you wanna explain your feedback, please contact me on discord: @minecraftermc");
   }
 }
-//
 function generateShop() {
-  Items = [];
+  Items = [RegisteredItems[13]];
   for (let i = 0; i < shopOptions; i++) {
     let item;
     do{ 
     item = RegisteredItems[RandomInt(0, RegisteredItems.length - 1)];
-    } while(Items.includes(item));
-    Items[i] = item;
+    } while(Items.includes(item) || !item.canBeRolled);
+    Items.push(item);
   }
 }
 
@@ -596,7 +623,7 @@ function BuildRightMenu(menuId) {
   }
   if (menuId == 3) {
     RightMenuElement.innerHTML =
-      "<h1>Change your color palete<br><br>additional paletes available in the shop</h1>";
+      "<h1>Change your color palete</h1>";
   }
   if (menuId == 5) {
     RightMenuElement.innerHTML = "<h1>Back</h1>";
@@ -695,6 +722,24 @@ function BuildRightMenu(menuId) {
   if (menuId == 10) {
     RightMenuElement.innerHTML = "<h1>"+(["Sound: ","Music: "][menuPointer-1])+([settings.sound,settings.music][menuPointer-1] ? "on" : "off")+"</h1><br>";
   }
+  if (menuId == 11){
+    RightMenuElement.innerHTML = "<h1>Change your settings</h1>"
+  }
+  if(menuId == 12){
+    RightMenuElement.innerHTML = "<h1>View and manage your medalions</h1>"
+  }
+  if (menuId == 13) {
+  RightMenuElement.innerHTML =
+    "<h1 class='itemDisplay'>" +
+    medalionsIterable[menuPointer - 1].name +
+    "</h1><br>";
+  RightMenuElement.innerHTML +=
+    "<h1 class='itemDisplay'>" +
+    medalionsIterable[menuPointer - 1].description +
+    "</h1><br>";
+    RightMenuElement.innerHTML += "<h1>Sell value: "+medalionsIterable[menuPointer-1].sellValue+"</h1><br>";
+    RightMenuElement.innerHTML += "<h1>Taken medalion slots: " + medalionsIterable[menuPointer-1].takenSlots+"/"+medalionSlots+"<br>(total: " + medalionCount +"/"+medalionSlots+")</h1>";
+} 
 }
 
 function BuildMenu() {
@@ -755,12 +800,13 @@ function BuildMenu() {
     menuChoices = [
       [shopOpen ? "Start next wave" : "Resume"],
       ["Inventory"],
+      ["Medalions"],
       ["Shop"],
-      ["colors"],
+      ["Colors"],
       ["Quota"],
       ["Settings"],
     ];
-    let rightMenus = [0, 1, 2, 3, 9, 10];
+    let rightMenus = [0, 1, 12, 2, 3, 9, 11];
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i].push(document.createElement("div"));
       menuChoices[i][1].className =
@@ -768,7 +814,7 @@ function BuildMenu() {
         menuBlocked ?
         "menu-choice-inactive" :
         "menu-choice" :
-        i == 2 ?
+        i == 3 ?
         shopOpen ?
         "menu-choice" :
         "menu-choice-inactive" :
@@ -787,7 +833,7 @@ function BuildMenu() {
         menu = i;
         switchMenu();
       });
-      menuChoices[i].push(i==0 ? !menuBlocked : i == 2 ? shopOpen : true);
+      menuChoices[i].push(i==0 ? !menuBlocked : i == 3 ? shopOpen : true);
       menuChoices[i][1].innerHTML = menuChoices[i][0];
       menuChoices[i][4] = rightMenus[i];
       menuChoices[i][1].onclick = () => {
@@ -916,7 +962,91 @@ function BuildMenu() {
       };
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
-  } else if (menu == 2) {
+  } 
+  else if (menu == 2) {
+  menuChoices = [
+    [
+      "Back",
+      document.createElement("div"),
+      () => {
+        menu = 0;
+        switchMenu();
+      },
+      true,
+      5,
+    ],
+  ];
+  menuChoices[0][1].onclick = () => {
+    if (mobile) {
+      if (menuPointer != 0) {
+        menuPointer = 0;
+        BuildRightMenu(menuChoices[0][4]);
+        navigateMenu("update");
+      }
+      else {
+        if (menuChoices[0][3]) {
+          menuChoices[0][2]();
+        }
+      }
+    }
+    else {
+      if (menuChoices[0][3]) {
+        menuChoices[0][2]();
+      }
+    }
+  };
+  menuChoices[0][1].onmousemove = () => {
+    if (!mobile) {
+      
+      menuPointer = 0;
+      navigateMenu("update");
+    }
+  };
+  menuChoices[0][1].innerHTML = menuChoices[0][0];
+  menuChoices[0][1].className = "menu-choice";
+  LeftMenuElement.appendChild(menuChoices[0][1]);
+  for (let i = 0; i < medalionsIterable.length; i++) {
+    menuChoices.push([medalionsIterable[i].name]);
+    menuChoices[i + 1].push(document.createElement("div"));
+    menuChoices[i + 1][1].className = 
+      "menu-choice";
+    menuChoices[i + 1].push(() => {
+      medalionsIterable[i].sell();
+      menuPointer = 0;
+      BuildMenu();
+    });
+    menuChoices[i + 1].push(true);
+    menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
+    menuChoices[i + 1][4] = 13;
+    menuChoices[i + 1][1].onclick = () => {
+      if (mobile) {
+        if (menuPointer != i + 1) {
+          menuPointer = i + 1;
+          BuildRightMenu(menuChoices[i + 1][4]);
+          navigateMenu("update");
+        }
+        else {
+          if (menuChoices[i + 1][3]) {
+            menuChoices[i + 1][2]();
+          }
+        }
+      }
+      else {
+        if (menuChoices[i + 1][3]) {
+          menuChoices[i + 1][2]();
+        }
+      }
+    };
+    menuChoices[i + 1][1].onmousemove = () => {
+      if (!mobile) {
+        
+        menuPointer = i + 1;
+        navigateMenu("update");
+      }
+    };
+    LeftMenuElement.appendChild(menuChoices[i + 1][1]);
+  }
+}else if (menu == 3) {
     menuChoices = [
       [
         "Back",
@@ -1008,7 +1138,7 @@ function BuildMenu() {
       };
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
-  } else if (menu == 3) {
+  } else if (menu == 4) {
     menuChoices = [
       [
         "Back",
@@ -1093,7 +1223,7 @@ function BuildMenu() {
       };
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
-  } else if (menu == 4) {
+  } else if (menu == 5) {
     menuChoices = [
       [
         "Back",
@@ -1153,7 +1283,7 @@ function BuildMenu() {
       LeftMenuElement.appendChild(menuChoices[i][1]);
     }
   }
-  else if (menu == 5) {
+  else if (menu == 6) {
     menuChoices = [
       [
         "Back",
