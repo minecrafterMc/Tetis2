@@ -223,9 +223,12 @@ const pressedKeys = {
   "arrowRight": false
   
 }
-const settings = {
+var settings = {
   "sound": true,
   "music": true,
+}
+if(localStorage.getItem("tetis2settings")){
+  settings = JSON.parse(localStorage.getItem("tetis2settings"));
 }
 if (settings.music){
   sounds.music[RandomInt(0,sounds.music.length-1)].play();
@@ -1301,6 +1304,7 @@ function BuildMenu() {
         () => {
           settings.sound = !settings.sound;
           BuildMenu();
+          localStorage.setItem("tetis2settings",JSON.stringify(settings))
         },
         true,
         10,
@@ -1317,6 +1321,7 @@ function BuildMenu() {
             sounds.music[0].stop();
             sounds.music[1].stop();
           }
+          localStorage.setItem("tetis2settings",JSON.stringify(settings))
           BuildMenu();
         },
         true,
