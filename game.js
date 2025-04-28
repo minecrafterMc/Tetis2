@@ -48,7 +48,8 @@ const RegisteredItems = [
       income += 1;
     },
     function(){},
-    AbilityRegistries.passive
+    AbilityRegistries.passive,
+    0
   ),
   new AbilityCountable(
     1,
@@ -60,7 +61,8 @@ const RegisteredItems = [
       timeLimit += 10;
     },
     function(){},
-    AbilityRegistries.passive
+    AbilityRegistries.passive,
+    0
   ),
   new AbilityCountable(
     2,
@@ -72,7 +74,8 @@ const RegisteredItems = [
       game.boardHeight = game.BoardHeight + 1;
     },
     function(){},
-    AbilityRegistries.passive
+    AbilityRegistries.passive,
+    5
   ),
   new ItemCountable(
     3,
@@ -82,36 +85,39 @@ const RegisteredItems = [
     0,
     function(){
       money += 1;
+      itemAmount--;
     },
     function(){},
     function(){
       return "";
-    }
+    },
+    0
   ),
     new Ability(4,"Double Income","Speeds up the game and doubles collected money for the next wave",30,0,
     function(){
-      this.oldSpeed = speed;
-      speed /= 2;
-      console.log(this)
+      speedDiv += 2;
     },
     function(){
       collectedMoney *= 2;
-      speed = this.oldSpeed;
       this.owned = false;
+      itemAmount--;
       AbilityRegistries.onWaveEnd[this.id] = undefined;
-    },AbilityRegistries.onWaveEnd),
+    },AbilityRegistries.onWaveEnd,
+      5
+    ),
     new Ability(5,"Slow motion","Slows down the game for the next wave",20,0,
       function(){
-        this.oldSpeed = speed;
-        speed *= 2;
+        speedMod += 2;
       },
       function(){
-        speed = this.oldSpeed;
         this.owned = false;
-      },AbilityRegistries.onWaveEnd),
+        itemAmount--;
+      },AbilityRegistries.onWaveEnd,
+      5
+    ),
       new AbilityCountable(6,"Increase Speed","increases game speed and income",10,0,function(){
-        if (speed > 1){
-          speed -= 1;
+        if (realSpeed > 1){
+          realSpeed -= 1;
           income++;
         }
         else {
@@ -119,12 +125,15 @@ const RegisteredItems = [
         }
         AbilityRegistries.onWaveEnd[this.id] = undefined;
     },function(){},
-    AbilityRegistries.passive),
+    AbilityRegistries.passive,
+        5
+      ),
     new AbilityCountable(7,"Decrese Speed","decreases game speed",50,0,function(){
-      speed++;
-
+      realSpeed++;
     },function(){},
-    AbilityRegistries.passive),
+    AbilityRegistries.passive,
+      5
+    ),
     new AbilityLimited(8,"Upgrade Shop","adds an additional slot to the shop",50,4,0,function(){
       shopOptions++;
       this.price = Math.floor(this.price * 1.5);
@@ -132,7 +141,9 @@ const RegisteredItems = [
       BuildMenu();
 
     },function(){},
-    AbilityRegistries.passive),
+    AbilityRegistries.passive,
+      5
+    ),
     new Ability(9,"Death Save","Saves you from loosing all of your money after loosing a wave",10,0,
     function(){
       this.data.amountBought++;
@@ -142,28 +153,28 @@ const RegisteredItems = [
       defyDeath = true;
       this.owned = false;
     },
-    AbilityRegistries.onWaveDeath,{amountBought:0}),
+    AbilityRegistries.onWaveDeath,0,{amountBought:0}),
     new Ability(10,"Small block","unlocks a 1x1 block as a shape",100,0,function(){
       blocks.push({ pattern: [true], width: 1, name: "1x1" });
-    },function(){},AbilityRegistries.passive),
+    },function(){},AbilityRegistries.passive,5),
     new ItemCountable(11,"Strengthen Gravity","Makes all floating blocks fall",75,0,function(){
       game.dropFloatingBlocks();
     },
     function(){},
-    function(){}
+    function(){},
+    10
     ),
-    new Medalion(12,"test","test",10,5,[
-      [AbilityRegistries.onLineClear,function(){
-        console.log(this);
-      }],[AbilityRegistries.onWaveEnd,function(){
-        console.log("test");
+    new Medalion(12,"remember to name this","multiplies your income by 2 - (amount of items you bought * 0.01)",10,5,[
+      [AbilityRegistries.onWaveEnd,function(){
+        collectedMoney *= 2 - (itemAmount * 0.01);
+        collectedMoney = Math.floor(collectedMoney);
       }]
-    ]),
+    ],0),
     new Ability(13,"reroll","rerolls the shop",10,0,function(){
   generateShop();
   BuildMenu()
   this.owned = false;
-},function(){},AbilityRegistries.passive,{},false)
+},function(){},AbilityRegistries.passive,0,{},false)
   
 ];
 var Items = [
@@ -186,14 +197,17 @@ if (!mobile){
   elements[0].style.display = "none";
   elements[1].style.display = "none";
 }
-var lastFrame = Date.now();
 var frame = 0;
 var inputFrame = 0;
 var fastFrame = 0;
 var timer = 0;
 var speed = 4;
+var realSpeed = 4;
+var speedMod = 1;
+var speedDiv = 1;
 var fastUpdateId;
 var money = 0;
+var itemAmount = 0;
 var wave = 0;
 var timeLimit = 30;
 var income = 1;
@@ -327,9 +341,11 @@ function update() {
       else {
         timerElement.innerHTML = timer;
       }
-      if (timer >= timeLimit && !legacyMode) {
+      if (timer >= timeLimit && timeLimit > 0 && !legacyMode) {
         AbilityRegistries.run("onWaveEnd");
         money += collectedMoney;
+        speedMod = 1;
+        speedDiv = 1;
         collectedMoney = 0;
         wave++;
         timer = 0;
@@ -374,6 +390,7 @@ function update() {
       game.detectFullBoard();
     }
     
+    //frame += RandomInt(-1,1); // this is for april fools, its really funny
     frame++;
     inputFrame++;
   }
@@ -541,7 +558,7 @@ function generateShop() {
     let item;
     do{ 
     item = RegisteredItems[RandomInt(0, RegisteredItems.length - 1)];
-    } while(Items.includes(item) || !item.canBeRolled);
+    } while(Items.includes(item) || !item.canBeRolled || item.unlockAt > wave);
     Items.push(item);
   }
 }
@@ -575,8 +592,8 @@ function buildTutorial(close) {
         eval(gameData.tutorial[tutorialStep].action);
       }
     }
-    TutorialElement.onclick = () => {
-      if (eval(gameData.tutorial[tutorialStep].condition)) {
+    window.onclick = () => {
+      if (eval(gameData.tutorial[tutorialStep].condition) && !(TutorialElement.style.display == "none")) {
         eval(gameData.tutorial[tutorialStep].afterAction);
         TutorialElement.style.display = "none";
         if (tutorialStep != gameData.tutorial.length -1){
@@ -623,6 +640,13 @@ function BuildRightMenu(menuId) {
       (shopOpen ?
         "Money: " + money + "$</h1>" :
         "You can access the shop between waves</h1>");
+    let unlockedItems = 0;
+    for (let i = 0;i<RegisteredItems.length ;i++){
+      if (RegisteredItems[i].unlockAt <= wave && RegisteredItems[i].canBeRolled){
+        unlockedItems++;
+      }
+    }
+    RightMenuElement.innerHTML+="<br><h1>Amount of unlocked items: "+unlockedItems+"</h1>";
   }
   if (menuId == 3) {
     RightMenuElement.innerHTML =
@@ -666,7 +690,7 @@ function BuildRightMenu(menuId) {
       "<h1 class='itemDisplay'>" +
       inventoryIterable[menuPointer - 1].description +
       "</h1><br>";
-    if (inventoryIterable[menuPointer - 1].cooldown > 0) {
+   /* if (inventoryIterable[menuPointer - 1].cooldown > 0) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>Cooldown: " +
         (timer - inventoryIterable[menuPointer - 1].lastUsed <
@@ -675,7 +699,7 @@ function BuildRightMenu(menuId) {
           (timer - inventoryIterable[menuPointer - 1].lastUsed) :
           "0") +
         "</h1><br>";
-    }
+    }*/
     if (inventoryIterable[menuPointer - 1] instanceof ItemCountable || inventoryIterable[menuPointer - 1] instanceof AbilityCountable) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>Owned: " +
@@ -699,10 +723,10 @@ function BuildRightMenu(menuId) {
       "<h1 class='itemDisplay'>" +
       Items[menuPointer - 1].description +
       "</h1><br>";
-    RightMenuElement.innerHTML +=
+    /*RightMenuElement.innerHTML +=
       "<h1 class='itemDisplay'>Cooldown: " +
       Items[menuPointer - 1].cooldown +
-      "</h1><br>";
+      "</h1><br>";*/
     RightMenuElement.innerHTML +=
       "<h1 class='itemDisplay'>Price: " +
       Items[menuPointer - 1].price +
@@ -830,6 +854,7 @@ function BuildMenu() {
           if (shopOpen) {
             shopOpen = false;
             game.resetBoard();
+            speed = Math.ceil(realSpeed * speedMod / speedDiv);
             switchMenu();
           }
         }

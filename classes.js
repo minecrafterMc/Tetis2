@@ -471,7 +471,7 @@ class Shape {
   }
 }
 class Item {
-  constructor(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText) {
+  constructor(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText, unlockAt) {
     this.name = name;
     this.description = description;
     this.price = price;
@@ -483,6 +483,7 @@ class Item {
     this.customInventoryText = customInventoryText;
     this.id = id;
     this.data = {};
+    this.unlockAt = unlockAt;
   }
   buy() {
     if (money >= this.price) {
@@ -490,6 +491,7 @@ class Item {
       this.owned = true;
       inventory[this.id] = this;
       this.onBuy();
+      itemAmount++;
       return { success: true, message: "Item bought" };
     }
     else {
@@ -498,8 +500,8 @@ class Item {
   }
 }
 class ItemCountable extends Item {
-  constructor(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText) {
-    super(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText);
+  constructor(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText, unlockAt) {
+    super(id, name, description, price, cooldown, onActivate, onBuy, customInventoryText, unlockAt);
     this.count = 0;
   }
   buy() {
@@ -511,6 +513,7 @@ class ItemCountable extends Item {
         inventory[this.id] = this;
       }
       inventory[this.id].count++;
+      itemAmount++;
       return { success: true, message: "Item bought" };
     }
     else {
@@ -519,7 +522,7 @@ class ItemCountable extends Item {
   }
 }
 class Ability {
-  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, data = {}, canBeRolled = true) {
+  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, unlockAt, data = {}, canBeRolled = true) {
     this.name = name;
     this.description = description;
     this.price = price;
@@ -532,6 +535,7 @@ class Ability {
     this.id = id;
     this.data = data;
     this.canBeRolled = canBeRolled;
+    this.unlockAt = unlockAt;
   }
   buy() {
     if (money >= this.price && !this.owned) {
@@ -539,6 +543,7 @@ class Ability {
       this.owned = true;
       this.onBuy();
       this.registry[this.id] = this;
+      itemAmount++;
       return { success: true, message: "Ability bought" };
     }
     else {
@@ -547,8 +552,8 @@ class Ability {
   }
 }
 class AbilityCountable extends Ability {
-  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, data = {}) {
-    super(id, name, description, price, cooldown, onBuy, onActivate, registry, data);
+  constructor(id, name, description, price, cooldown, onBuy, onActivate, registry, unlockAt, data = {}) {
+    super(id, name, description, price, cooldown, onBuy, onActivate, registry, unlockAt, data);
     this.count = 0;
   }
   buy() {
@@ -558,6 +563,7 @@ class AbilityCountable extends Ability {
       this.owned = true;
       this.registry[this.id] = this;
       this.registry[this.id].count++;
+      itemAmount++;
       return { success: true, message: "Ability bought" };
     }
     else {
@@ -566,8 +572,8 @@ class AbilityCountable extends Ability {
   }
 }
 class AbilityLimited extends AbilityCountable {
-  constructor(id, name, description, price, maxAmount, cooldown, onBuy, onActivate, registry, data = {}) {
-    super(id, name, description, price, cooldown, onBuy, onActivate, registry, data);
+  constructor(id, name, description, price, maxAmount, cooldown, onBuy, onActivate, registry, unlockAt, data = {}) {
+    super(id, name, description, price, cooldown, onBuy, onActivate, registry, unlockAt, data);
     this.maxAmount = maxAmount;
   }
   buy() {
@@ -577,6 +583,7 @@ class AbilityLimited extends AbilityCountable {
       this.owned = true;
       this.registry[this.id] = this;
       this.registry[this.id].count++;
+      itemAmount++;
       return { success: true, message: "Ability bought" };
     }
     else {
@@ -585,7 +592,7 @@ class AbilityLimited extends AbilityCountable {
   }
 }
 class Medalion {
-  constructor(id, name, description, price, sellValue, effects, takenSlots = 1, data = {}) {
+  constructor(id, name, description, price, sellValue, effects, unlockAt, takenSlots = 1, data = {}) {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -595,26 +602,38 @@ class Medalion {
     this.sellValue = sellValue;
     this.owned = false;
     this.takenSlots = takenSlots;
+    this.canBeRolled = true;
+    this.unlockAt = unlockAt;
   }
   buy() {
-    if (money >= this.price && medalionCount  + this.takenSlots <= medalionSlots){
+    if (money >= this.price && medalionCount + this.takenSlots <= medalionSlots) {
       money -= this.price;
-    for (let i = 0; i < this.effects.length; i++) {
-      this.effects[i][0][this.id] = this.effects[i][1].bind(this);
-      
-    }
-    this.owned = true;
-    medalions[this.id] = this;
-    medalionCount += this.takenSlots;
+      for (let i = 0; i < this.effects.length; i++) {
+        if (this.effects[i][0] == "onBuy") {
+          this.effects[i][1]();
+        }
+        else if (this.effects[i][0] != "onSell") {
+          this.effects[i][0][this.id] = this.effects[i][1].bind(this);
+        }
+        
+      }
+      this.owned = true;
+      medalions[this.id] = this;
+      medalionCount += this.takenSlots;
     }
   }
   sell() {
     this.owned = false;
     money += this.sellValue;
     for (let i = 0; i < this.effects.length; i++) {
-  this.effects[i][0][this.id] = undefined;
-}
-medalions[this.id] = undefined;
-medalionCount-= this.takenSlots;
+      if (this.effects[i][0] == "onSell") {
+        this.effects[i][1]();
+      }
+      else if (this.effects[i][0] != "onBuy") {
+        this.effects[i][0][this.id] = undefined;
+      }
+    }
+    medalions[this.id] = undefined;
+    medalionCount -= this.takenSlots;
   }
 }
