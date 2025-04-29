@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title></title>
+    <title>Tetis 2</title>
     <style>
       *::-webkit-scrollbar {
         display: none;
@@ -142,7 +142,7 @@ align-content: center;
         <p id="money"></p></div>
         <br />
         <div class="controlls" id="controlls-left">
-        <button onmousedown="this.pressed = true;" onmouseup="this.pressed = false;" onclick="cell1.rotate('left')" id="left-rot-button">left rotate</button><button onmousedown="this.pressed = true;" onmouseup="this.pressed = false;" onclick="cell1.move(-1,0);" id="left-move-button">left</button><button
+        <button id="left-rot-button">left rotate</button><button  id="left-move-button">left</button><button
           onclick="if (!menuOpen) {
 pause = !pause;
 menuOpen = !menuOpen;
@@ -150,12 +150,11 @@ menu = 0;
 switchMenu();
 }"
         >pause
-</button></div><div class="controlls" id="controlls-right"><button onmousedown="this.pressed = true;" onmouseup="this.pressed = false;"
-          onclick="cell1.rotate('right')"
+</button></div><div class="controlls" id="controlls-right"><button
           id="right-rot-button"
         >
           right rotate</button
-        ><button onmousedown="this.pressed = true;" onmouseup="this.pressed = false;" onclick="cell1.move(1,0)" id="right-move-button">right</button><button onmousedown="this.pressed = true;" onmouseup="this.pressed = false;"
+        ><button id="right-move-button">right</button><button
           onclick="cell1.moveDown()"
         >down
 </button> </div>

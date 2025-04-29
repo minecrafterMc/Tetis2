@@ -156,7 +156,7 @@ const RegisteredItems = [
     AbilityRegistries.onWaveDeath,0,{amountBought:0}),
     new Ability(10,"Small block","unlocks a 1x1 block as a shape",100,0,function(){
       blocks.push({ pattern: [true], width: 1, name: "1x1" });
-    },function(){},AbilityRegistries.passive,5),
+    },function(){},AbilityRegistries.passive,10),
     new ItemCountable(11,"Strengthen Gravity","Makes all floating blocks fall",75,0,function(){
       game.dropFloatingBlocks();
     },
@@ -398,6 +398,41 @@ function update() {
 
 
 setInterval(update, 50);
+
+leftMoveButton.addEventListener("touchstart", (event) => {
+  console.log("detected");
+    pressedKeys.a = true;
+      cell1.move(-1, 0);
+      inputFrame = -2;
+});
+leftMoveButton.addEventListener("touchend", (event) => {
+    pressedKeys.a = false;
+  
+});
+rightMoveButton.addEventListener("touchstart", (event) => {
+    pressedKeys.d = true;
+      cell1.move(1, 0);
+      inputFrame = -2;
+});
+rightMoveButton.addEventListener("touchend", (event) => {
+    pressedKeys.d = false;
+});
+leftRotButton.addEventListener("touchstart", (event) => {
+    pressedKeys.arrowLeft = true;
+      cell1.rotate("left");
+      inputFrame = -2;
+});
+leftRotButton.addEventListener("touchend", (event) => {
+    pressedKeys.arrowLeft = false;
+});
+rightRotButton.addEventListener("touchstart", (event) => {
+    pressedKeys.arrowRight = true;
+      cell1.rotate("right");
+      inputFrame = -2;
+});
+rightRotButton.addEventListener("touchend", (event) => {
+    pressedKeys.arrowRight = false;
+});
 window.addEventListener("keydown", (event) => {
   if (event.key == "a") {
     pressedKeys.a = true;
