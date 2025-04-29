@@ -9,7 +9,7 @@ if (sessionStorage.getItem("testerMode")){
 const paletes = gameData.colors;
 var currentPalete = 0;
 const blocks = gameData.blocks;
-const game = new gameManager(30, 30, 10, 20, paletes);
+const game = new gameManager(30, 30, gameData.boardWidth, gameData.boardHeight, paletes);
 game.quotaEnabled = true;
 const AbilityRegistries = {
   onLineClear: [],
@@ -201,15 +201,15 @@ var frame = 0;
 var inputFrame = 0;
 var fastFrame = 0;
 var timer = 0;
-var speed = 4;
-var realSpeed = 4;
+var speed = gameData.speed;
+var realSpeed = gameData.speed;
 var speedMod = 1;
 var speedDiv = 1;
 var fastUpdateId;
 var money = 0;
 var itemAmount = 0;
 var wave = 0;
-var timeLimit = 30;
+var timeLimit = gameData.timeLimit;
 var income = 1;
 var collectedMoney = 0;
 var shopOptions = 4;
@@ -223,7 +223,6 @@ var menu = 0;
 var tutorialStep = 0;
 var shopOpen = false;
 var menuChoices = [];
-var shapeSpawnPosition = 0;
 var inventory = {};
 var inventoryIterable = [];
 var medalionSlots = 3;
@@ -385,7 +384,7 @@ function update() {
     moneyElement.innerHTML = collectedMoney + "$<br>";
       
     }
-    if (frame % Math.ceil(speed / 3) == 0) {
+    if (frame % 1 == 0) {
       game.detectFullRow();
       game.detectFullBoard();
     }

@@ -3,14 +3,13 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, height=device-height" />
   <title>Tetis 2 main menu</title>
   <style>
     html {
       background: rgb(153, 176, 176);
 background: linear-gradient(0deg, rgba(153, 176, 176, 1) 0%, rgba(188, 171, 174, 1) 49%);
       color: white;
-      height: 100%;
     }
     
     button {
@@ -37,9 +36,10 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
   <center>
     <img width="350" src="assets/TetisLogo.png" />
     <br /><br /><br />
-    <button onclick="startcustommode(-1,250,'classic',1,1,0,0,false,false)">
-      Play Classic</button><br /><button onclick="startcustommode(-1,250,'classic',1,1,0,0,true,false)">
-  Play Tutorial</button><br><button onclick="startcustommode(-1,250,'legacy',1,1,0,0,false,true)">
+    <button onclick="startcustommode(30,7,'classic',21,10,false,false)">
+      Play</button><br /><button onclick="startcustommode(30,8,'classic',21,10,true,false)">
+      
+  Play Tutorial</button><br><button onclick="startcustommode(30,4,'classic',20,10,false,false)">Play Classic</button><br><button onclick="startcustommode(30,4,'legacy',20,10,false,true)">
       Play Legacy</button><br>
     <button onclick="" class="button-other">
       Bonus Modes<br>(coming in 1.1)</button><br>
@@ -59,10 +59,8 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
       time,
       speed,
       name,
-      lives,
-      multi,
-      pointpenalty,
-      timepenalty,
+      boardHeight,
+      boardWidth,
       tutorial,
       legacy
     ) {
@@ -70,12 +68,10 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
         "gdata",
         JSON.stringify({
           name: name,
-          time: time,
-          updateTimer: speed,
-          lives: lives,
-          multi: multi,
-          ppenalty: pointpenalty,
-          tpenalty: timepenalty,
+          timeLimit: time,
+          speed: speed,
+          boardWidth: boardWidth,
+          boardHeight: boardHeight,
           legacy:legacy,
           colors: [
           {
