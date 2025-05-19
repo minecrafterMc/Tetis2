@@ -59,14 +59,25 @@
       .menu-choice {
         width: 90%;
        padding: 10px;
+       border-radius: 20px;
       }
       .menu-choice-inactive {
         width: 90%;
         padding: 10px;
         background-color: rgb(0, 0, 0);
+        border-radius:20px;
+      }
+      .menu-choice-special{
+        width: 90%;
+        padding: 10px;
+        color: rgba(255, 251, 156, 1);
+        border-radius:20px;
+      }
+      .menu-choice-special#menu-selected{
+        color: rgba(255, 255, 255, 1);
       }
       #menu-selected {
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(0, 0, 0, 1);
       }
       #canvas {
         border: 1px solid black;
@@ -169,6 +180,8 @@ switchMenu();
     <div id="tutorial"></div>
     </div>
     <script src="classes.js"></script>
+    
     <script src="game.js"></script>
+    <script src="items.js"></script>
   </body>
 </html>

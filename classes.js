@@ -200,6 +200,21 @@ class gameManager {
       }
     }
   }
+  /*
+  returns the y coordinate of the highest point, not its distance to the bottom
+  */
+  getHighestPoint(){
+    let high = 0;
+    main: for (let i = 0;i<this.BoardHeight;i++){
+      for (let j = 0;j<this.BoardWidth;j++){
+        if (board[j][i] == 1){
+          high = i;
+          break main;
+        }
+      }
+    }
+    return high; 
+  }
   loose() {
     alert("you didn't make the quota (better message coming in full release)")
     location.reload();
