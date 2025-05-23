@@ -41,13 +41,13 @@ var Items = [
 var quotas = [
   10,
   40,
-  80,
-  100,
-  150,
-  200,
-  400,
-  700,
-  1000
+  90,
+  190,
+  500,
+  850,
+  1500,
+  4000,
+  10000
 ]
 var mobile = navigator.appVersion.indexOf("Android") != -1 || navigator.appVersion.indexOf("ios") != -1;
 if (!mobile){
