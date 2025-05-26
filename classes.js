@@ -78,24 +78,24 @@ class gameManager {
     this.drawBoard();
   }
   drawBoard(thisBoard = board) {
-    ctx.fillStyle = this.ColorPaletes[currentPalete].background;
-    ctx.fillRect(
+    BoardLayer.ctx.fillStyle = this.ColorPaletes[currentPalete].background;
+    BoardLayer.ctx.fillRect(
       0,
       0,
       this.CellWidth * this.BoardWidth,
       this.CellHeight * this.BoardHeight
     );
-    ctx.fillStyle = this.ColorPaletes[currentPalete].fallen;
+    BoardLayer.ctx.fillStyle = this.ColorPaletes[currentPalete].fallen;
     for (let i = 0; i < thisBoard.length; i++) {
       for (let j = 0; j < thisBoard[i].length; j++) {
         if (thisBoard[i][j] == 1 || thisBoard[i][j] == 2) {
           if (thisBoard[i][j] == 1) {
-            ctx.fillStyle = this.ColorPaletes[currentPalete].fallen;
+            BoardLayer.ctx.fillStyle = this.ColorPaletes[currentPalete].fallen;
           }
           else if (thisBoard[i][j] == 2) {
-            ctx.fillStyle = this.ColorPaletes[currentPalete].trail;
+            BoardLayer.ctx.fillStyle = this.ColorPaletes[currentPalete].trail;
           }
-          ctx.fillRect(
+          BoardLayer.ctx.fillRect(
             i * this.CellWidth,
             j * this.CellHeight,
             this.CellWidth,
@@ -110,6 +110,10 @@ class gameManager {
   adjustCanvas() {
     canvas.width = this.CellWidth * this.BoardWidth;
     canvas.height = this.CellHeight * this.BoardHeight;
+    RenderingLayers.forEach(function(layer) {
+      layer.canvas.width = this.CellWidth * this.BoardWidth;
+      layer.canvas.height = this.CellHeight * this.BoardHeight;
+    }.bind(this));
   }
   adjustBoardArray() {
     for (let i = board.length; i < this.BoardWidth; i++) {
@@ -203,17 +207,17 @@ class gameManager {
   /*
   returns the y coordinate of the highest point, not its distance to the bottom
   */
-  getHighestPoint(){
+  getHighestPoint() {
     let high = 0;
-    main: for (let i = 0;i<this.BoardHeight;i++){
-      for (let j = 0;j<this.BoardWidth;j++){
-        if (board[j][i] == 1){
+    main: for (let i = 0; i < this.BoardHeight; i++) {
+      for (let j = 0; j < this.BoardWidth; j++) {
+        if (board[j][i] == 1) {
           high = i;
           break main;
         }
       }
     }
-    return high; 
+    return high;
   }
   loose() {
     alert("you didn't make the quota (better message coming in full release)")
@@ -265,8 +269,8 @@ class Cell {
     this.onFall = onFall;
   }
   draw() {
-    ctx.fillStyle = this.game.ColorPaletes[currentPalete].active;
-    ctx.fillRect(this.X, this.Y, this.game.CellWidth, this.game.CellHeight);
+    ShapeLayer.ctx.fillStyle = this.game.ColorPaletes[currentPalete].active;
+    ShapeLayer.ctx.fillRect(this.X, this.Y, this.game.CellWidth, this.game.CellHeight);
   }
   move(x, y) {
     let canMoveX = false;
@@ -374,6 +378,7 @@ class Shape {
     this.oldSounds.fall = RandomInt(0, sounds.fall.length - 1);
   }
   draw() {
+    ShapeLayer.ctx.clearRect(0,0,game.boardWidth*game.cellWidth,game.boardHeight*game.cellHeight)
     for (let i = 0; i < this.cells.length; i++) {
       this.cells[i].draw();
     }
