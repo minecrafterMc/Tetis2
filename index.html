@@ -55,6 +55,10 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
       sessionStorage.setItem("testerMode",true);
       alert("Thank you for testing my game!\nIf you find any bugs, press the b button to send a report\nIf you want to share an opinion, press the n button to send feedback\nBE AS CRITICAL AS POSSIBLE if you don't like something, tell me");
     }
+    if (url.has("d")){
+      sessionStorage.setItem("tetis2Debug",true);
+      alert("debug mode enabled")
+    }
     function startcustommode(
       time,
       speed,

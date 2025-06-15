@@ -147,6 +147,7 @@ class gameManager {
         for (let j = 0; j < this.boardWidth; j++) {
           board[j][i] = 0;
         }
+        testParticle.play(50,500,"+1");
         collectedMoney += income;
         AbilityRegistries.run("onLineClear");
         if (gameData.tutorialEnabled) {
@@ -453,6 +454,7 @@ class Shape {
     }
     this.game.drawBoard(this.drawpreview());
     this.draw();
+    render();
   }
   rotate(side) {
     let newPattern = [];
