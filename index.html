@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, height=device-height" />
   <title>Tetis 2 main menu</title>
+      <link rel="icon" href="./assets/Tetis2Icon.png" />
+
   <style>
     html {
       background: rgb(153, 176, 176);
@@ -42,12 +44,12 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
   Play Tutorial</button><br><button onclick="startcustommode(30,4,'classic',20,10,false,false)">Play Classic</button><br><button onclick="startcustommode(30,4,'legacy',20,10,false,true)">
       Play Legacy</button><br>
     <button onclick="" class="button-other">
-      Bonus Modes<br>(coming in 1.1)</button><br>
+      Bonus Modes<br>(coming in 1.1.0)</button><br>
     <button class="button-other">
       Mode Editor<br />(coming later)
     </button>
     <br>
-    <p>v. alpha 0.1</p>
+    <p>v. 1.0.0</p>
   </center>
   <script>
     var url = new URLSearchParams(window.location.search);
@@ -179,17 +181,8 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
           tutorial: [
           {
             appear: "auto",
-            text: "welcome to Tetis 2!<br>(press e or click on this to continue)",
+            text: "welcome to Tetis 2!<br>(press e or click anywhere to continue)",
             action: "pause = true;timeLimit = -1",
-            afterAction: "",
-            condition: "true",
-            position: "top",
-            close: ""
-          },
-          {
-            appear: "auto",
-            text: "your main goal is to make enough money to meet the quota",
-            action: "",
             afterAction: "",
             condition: "true",
             position: "top",
@@ -242,9 +235,9 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
           },
           {
             appear: "auto",
-            text: "each wave takes 30 seconds",
+            text: "you can see how much time is left in the top left corner",
             action: "",
-            afterAction: "timeLimit = 30;",
+            afterAction: "timeLimit = gameData.timeLimit;",
             condition: "true",
             position: "top",
             close: ""
@@ -262,7 +255,7 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
             appear: "auto",
             text: "try clearing the first wave",
             action: "",
-            afterAction: "pause = false;timeLimit = 30;time=0;game.resetBoard();",
+            afterAction: "pause = false;timeLimit = gameData.timeLimit;time=0;game.resetBoard();",
             condition: "true",
             position: "top",
             close: ""
@@ -271,6 +264,24 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
             appear: "clearWave",
             text: "great job!",
             action: "menuBlocked = true;",
+            afterAction: "",
+            condition: "true",
+            position: "top",
+            close: ""
+          },
+          {
+            appear: "auto",
+            text: "your main goal is to make enough money to meet the quota",
+            action: "",
+            afterAction: "",
+            condition: "true",
+            position: "top",
+            close: ""
+          },
+          {
+            appear: "auto",
+            text: "you can always see information about the current quota in this menu",
+            action: "",
             afterAction: "",
             condition: "true",
             position: "top",
@@ -287,16 +298,16 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
           },
           {
             appear: "auto",
-            text: "select it by pressing w and s to navigate the menu and e to confirm, or just press the option you want",
-            action: "",
+            text: "the shop has a rotation of 4 random items you can buy",
+            action: "menu = 1;BuildMenu()",
             afterAction: "",
             condition: "true",
             position: "bottom",
-            close: "shopOpened"
+            close: ""
           },
           {
             appear: "auto",
-            text: "the shop has a rotation of 4 random items you can buy",
+            text: "more items will be avaliable in the shop as you progress, so make sure to check it often",
             action: "",
             afterAction: "",
             condition: "true",
@@ -314,8 +325,8 @@ background: radial-gradient(circle, rgba(234, 208, 208, 1) 0%, rgba(144, 141, 14
           },
           {
             appear: "auto",
-            text: "the rest of the tutorial coming in the full release",
-            action: "menuBlocked = false;buildMenu();",
+            text: "that's it for now, enjoy Tetis 2!",
+            action: "menuBlocked = false;BuildMenu();",
             afterAction: "",
             condition: "true",
             position: "top",
