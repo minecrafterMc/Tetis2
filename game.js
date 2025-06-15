@@ -611,7 +611,11 @@ function BuildRightMenu(menuId) {
   }
   if (menuId == 8) {
     RightMenuElement.innerHTML =
-      "<h1 class='itemDisplay'>Money:" + money + "$</h1><br><br><br>";
+      "<h1 class='itemDisplay'>Money:" + money + "$</h1><br><br>";
+      if (Items[menuPointer - 1].name != "Reroll") {
+      RightMenuElement.innerHTML +=
+      "<h1 class='itemDisplay'>" + (Items[menuPointer - 1] instanceof Item ? "Item" : Items[menuPointer - 1] instanceof Ability ? "Ability" : Items[menuPointer - 1] instanceof Medalion ? "Medalion" : "unknown") + "</h1><br>";
+      }
     RightMenuElement.innerHTML +=
       "<h1 class='itemDisplay'>" + Items[menuPointer - 1].name + "</h1><br>";
     RightMenuElement.innerHTML +=
