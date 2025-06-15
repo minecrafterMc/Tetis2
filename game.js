@@ -6,6 +6,9 @@ if (sessionStorage.getItem("gdata")) {
 if (sessionStorage.getItem("testerMode")){
   gameData.testerMode = sessionStorage.getItem("testerMode");
 }
+if (sessionStorage.getItem("tetis2Debug")){
+  gameData.debugMode = sessionStorage.getItem("tetis2Debug");
+}
 const paletes = gameData.colors;
 var currentPalete = 0;
 const blocks = gameData.blocks;
@@ -725,7 +728,12 @@ function BuildMenu() {
       ["Colors"],
       ["Settings"],
     ];
+    
     let rightMenus = [0,2,9, 1, 12, 3, 11];
+    if (gameData.debugMode) {
+  menuChoices.push(["debug"]);
+  rightMenus.push(13);
+}
     for (let i = 0; i < menuChoices.length; i++) {
       menuChoices[i].push(document.createElement("div"));
       menuChoices[i][1].className =
@@ -1279,6 +1287,79 @@ function BuildMenu() {
       LeftMenuElement.appendChild(menuChoices[i][1]);
     }
   }
+  else if (menu == 7) {
+  menuChoices = [
+    [
+      "Back",
+      document.createElement("div"),
+      () => {
+        menu = 0;
+        switchMenu();
+      },
+      true,
+      5,
+    ],
+    [
+      "giveMoney",
+      document.createElement("div"),
+      () => {
+        money = 999999;
+      },
+      true,
+      5,
+    ],
+    [
+      "incrementWave",
+      document.createElement("div"),
+      () => {
+        wave++;
+      },
+      true,
+      5,
+    ],
+    [
+      "endWave",
+      document.createElement("div"),
+      () => {
+        timer = timeLimit;
+      },
+      true,
+      5,
+    ]
+  ];
+  for (let i = 0; i < menuChoices.length; i++) {
+    menuChoices[i][1].innerHTML = menuChoices[i][0];
+    menuChoices[i][1].className =
+      "menu-choice";
+    menuChoices[i][1].onclick = () => {
+      if (mobile) {
+        if (menuPointer != i) {
+          menuPointer = i;
+          BuildRightMenu(menuChoices[i][4]);
+          navigateMenu("update");
+        }
+        else {
+          if (menuChoices[i][3]) {
+            menuChoices[i][2]();
+          }
+        }
+      }
+      else {
+        if (menuChoices[i][3]) {
+          menuChoices[i][2]();
+        }
+      }
+    };
+    menuChoices[i][1].onmousemove = () => {
+      if (!mobile) {
+        
+        menuPointer = i;
+        navigateMenu("update");
+      }
+    };
+    LeftMenuElement.appendChild(menuChoices[i][1]);
+  }
+}
   menuChoices[menuPointer][1].id = "menu-selected";
 }
 
