@@ -165,7 +165,6 @@ function generateShape(reason) {
   clearInterval(fastUpdateId);
 }
 
-const testParticle = new textParticle("red","black",100,0,100,100,3);
 function update() {
   if (!pause) {
     game.drawBoard(cell1.drawpreview());
@@ -173,12 +172,10 @@ function update() {
       cell1.move(0, 1);
       cell1.drawpreview();
     }
-    render();
     if (inputFrame > 0){
       if (pressedKeys.a){
         if (!menuOpen) {
       cell1.move(-1, 0);
-      
     }
       }
       if (pressedKeys.d){
