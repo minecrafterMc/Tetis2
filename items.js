@@ -127,7 +127,7 @@ const RegisteredItems = [
     function(){},
     10
     ),
-    new Medalion(12,"remember to name this","multiplies your income by 2 - (amount of items you bought * 0.01)",10,5,[
+    new Medalion(12,"Empty Pockets","multiplies your income by 2 - (amount of items you bought * 0.01)",10,5,[
       [AbilityRegistries.onWaveEnd,function(){
         collectedMoney *= 2 - (itemAmount * 0.01);
         collectedMoney = Math.floor(collectedMoney);
@@ -143,7 +143,7 @@ new Medalion(14,"Panic Slowdown","slows down the game more the higher you build"
   speed = Math.floor(Math.floor(realSpeed * speedMod / speedDiv) + percent * 0.3)
 }]],2),
 new Medalion(15,"Piggy Bank","gives you 4$ every wave",15,10,[[AbilityRegistries.onWaveEnd,function(){money += 4}]],0),
-new Medalion(16,"name this later 2","multiplies your income by half of the level of your current quota",80,50,[[AbilityRegistries.onWaveEnd,function(){collectedMoney *= Math.floor(wave / 5) / 2; collectedMoney = Math.floor(collectedMoney)}]],15),
+new Medalion(16,"Return of Investment","multiplies your income by half of the level of your current quota",80,50,[[AbilityRegistries.onWaveEnd,function(){collectedMoney *= Math.floor(wave / 5) / 2; collectedMoney = Math.floor(collectedMoney)}]],15),
 new Medalion(17,"Rich Get Richer","gives you 1$ per every 5$ at the end of turn",30,20,[[AbilityRegistries.onWaveEnd,function() {
   money += Math.floor(money / 5);
 }]],5),
