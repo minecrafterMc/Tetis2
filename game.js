@@ -657,14 +657,14 @@ function BuildRightMenu(menuId) {
   if (menuId == 13) {
   RightMenuElement.innerHTML =
     "<h1 class='itemDisplay'>" +
-    medalionsIterable[menuPointer - 1].name +
+    medalionsIterable[menuPointer - 2].name +
     "</h1><br>";
   RightMenuElement.innerHTML +=
     "<h1 class='itemDisplay'>" +
-    medalionsIterable[menuPointer - 1].description +
+    medalionsIterable[menuPointer - 2].description +
     "</h1><br>";
-    RightMenuElement.innerHTML += "<h1>Sell value: "+medalionsIterable[menuPointer-1].sellValue+"</h1><br>";
-    RightMenuElement.innerHTML += "<h1>Taken medalion slots: " + medalionsIterable[menuPointer-1].takenSlots+"/"+medalionSlots+"<br>(total: " + medalionCount +"/"+medalionSlots+")</h1>";
+    RightMenuElement.innerHTML += "<h1>Sell value: "+medalionsIterable[menuPointer-2].sellValue+"</h1><br>";
+    RightMenuElement.innerHTML += "<h1>Taken medalion slots: " + medalionsIterable[menuPointer-2].takenSlots+"/"+medalionSlots+"<br>(total: " + medalionCount +"/"+medalionSlots+")</h1>";
 } 
 }
 
@@ -907,7 +907,13 @@ function BuildMenu() {
       },
       true,
       5,
-    ],
+    ],[
+      "slots: " + medalionCount +"/"+medalionSlots,
+      document.createElement("div"),
+  () => {},
+  false,
+  -2,
+    ]
   ];
   menuChoices[0][1].onclick = () => {
     if (mobile) {
@@ -938,46 +944,70 @@ function BuildMenu() {
   menuChoices[0][1].innerHTML = menuChoices[0][0];
   menuChoices[0][1].className = "menu-choice";
   LeftMenuElement.appendChild(menuChoices[0][1]);
+  menuChoices[1][1].onclick = () => {
+  if (mobile) {
+    
+      if (menuChoices[1][3]) {
+        menuChoices[1][2]();
+      }
+    
+  }
+  else {
+    if (menuChoices[1][3]) {
+      menuChoices[1][2]();
+    }
+  }
+};
+menuChoices[1][1].onmousemove = () => {
+  if (!mobile) {
+    
+    menuPointer = 1;
+    navigateMenu("update");
+  }
+};
+menuChoices[1][1].innerHTML = menuChoices[1][0];
+menuChoices[1][1].className = "menu-choice";
+LeftMenuElement.appendChild(menuChoices[1][1]);
   for (let i = 0; i < medalionsIterable.length; i++) {
     menuChoices.push([medalionsIterable[i].name]);
-    menuChoices[i + 1].push(document.createElement("div"));
-    menuChoices[i + 1][1].className = 
+    menuChoices[i + 2].push(document.createElement("div"));
+    menuChoices[i + 2][1].className = 
       "menu-choice";
-    menuChoices[i + 1].push(() => {
+    menuChoices[i + 2].push(() => {
       medalionsIterable[i].sell();
       menuPointer = 0;
       BuildMenu();
     });
-    menuChoices[i + 1].push(true);
-    menuChoices[i + 1][1].innerHTML = menuChoices[i + 1][0];
-    menuChoices[i + 1][4] = 13;
-    menuChoices[i + 1][1].onclick = () => {
+    menuChoices[i + 2].push(true);
+    menuChoices[i + 2][1].innerHTML = menuChoices[i + 2][0];
+    menuChoices[i + 2][4] = 13;
+    menuChoices[i + 2][1].onclick = () => {
       if (mobile) {
-        if (menuPointer != i + 1) {
-          menuPointer = i + 1;
-          BuildRightMenu(menuChoices[i + 1][4]);
+        if (menuPointer != i + 2) {
+          menuPointer = i + 2;
+          BuildRightMenu(menuChoices[i + 2][4]);
           navigateMenu("update");
         }
         else {
-          if (menuChoices[i + 1][3]) {
-            menuChoices[i + 1][2]();
+          if (menuChoices[i + 2][3]) {
+            menuChoices[i + 2][2]();
           }
         }
       }
       else {
-        if (menuChoices[i + 1][3]) {
-          menuChoices[i + 1][2]();
+        if (menuChoices[i + 2][3]) {
+          menuChoices[i + 2][2]();
         }
       }
     };
-    menuChoices[i + 1][1].onmousemove = () => {
+    menuChoices[i + 2][1].onmousemove = () => {
       if (!mobile) {
         
-        menuPointer = i + 1;
+        menuPointer = i + 2;
         navigateMenu("update");
       }
     };
-    LeftMenuElement.appendChild(menuChoices[i + 1][1]);
+    LeftMenuElement.appendChild(menuChoices[i + 2][1]);
   }
 }else if (menu == 1) {
     menuChoices = [
@@ -1071,7 +1101,8 @@ function BuildMenu() {
       };
       LeftMenuElement.appendChild(menuChoices[i + 1][1]);
     }
-  } else if (menu == 5) {
+}
+   else if (menu == 5) {
     menuChoices = [
       [
         "Back",

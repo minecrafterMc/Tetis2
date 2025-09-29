@@ -1,4 +1,4 @@
-//chatgpt's code for rotatung a 2d array
+//chatgpt's code for rotating a 2d array
 function rotateMatrix(matrix, direction = 'clockwise') {
   const rows = matrix.length;
   const cols = matrix[0].length;
