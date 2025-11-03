@@ -217,7 +217,9 @@ class gameManager {
   }
   loose() {
     alert("you didn't make the quota (better message coming in full release)")
+    resetSave();
     location.reload();
+    
   }
   
   set boardWidth(value) {

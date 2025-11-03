@@ -9,6 +9,8 @@ if (sessionStorage.getItem("testerMode")){
 if (sessionStorage.getItem("tetis2Debug")){
   gameData.debugMode = sessionStorage.getItem("tetis2Debug");
 }
+
+const saveData = JSON.parse(localStorage.getItem("Tetis2Save"));
 const paletes = gameData.colors;
 var currentPalete = 0;
 const blocks = gameData.blocks;
@@ -41,6 +43,33 @@ const AbilityRegistries = {
 var Items = [
   
 ]
+function loadSave(){
+  if (!gameData.allowSaving) return;
+if (saveData != undefined){
+  for ( let i = 0; i< saveData.items.length;i++){
+    for (let j = 0;j<saveData.items[i][1];j++){
+    money += RegisteredItems[saveData.items[i][0]].price;
+    RegisteredItems[saveData.items[i][0]].buy();
+    }
+  }
+  for (let i = 0;i<saveData.medalions.length;i++){
+    money += RegisteredItems[saveData.medalions[i]].price;
+    RegisteredItems[saveData.medalions[i]].buy();
+  }
+  money = saveData.money;
+  wave = saveData.wave;
+}
+}
+function resetSave(){
+  if (!gameData.allowSaving) return;
+  let save = {
+        money: 0,
+        wave: 0,
+        items:[],
+        medalions:[]
+      }
+        localStorage.setItem("Tetis2Save",JSON.stringify(save));
+}
 var quotas = [
   10,
   40,
@@ -113,6 +142,25 @@ if (localStorage.getItem("playedTetis2Tutorial") == null && !gameData.tutorialEn
   menuOpen = true;
   switchMenu();
   BuildRightMenu(-1);
+}
+function saveGame(){
+  if (!gameData.allowSaving) return;
+  updateInventoryIterable();
+  let save = {
+    money: money,
+    wave: wave,
+    items: [],
+    medalions: []
+  }
+  inventoryIterable.forEach(item => {
+    if (item instanceof ItemCountable || item instanceof AbilityCountable)
+    save.items[save.items.length] = [item.id,item.count];
+    else save.items[save.items.length] = [item.id,1];
+  })
+  medalions.forEach(med => {
+    save.medalions[save.medalions.length] = med.id;
+  })
+  localStorage.setItem("Tetis2Save",JSON.stringify(save));
 }
 function updateInventoryIterable() {
   inventoryIterable = [];
@@ -208,6 +256,7 @@ function update() {
         speedDiv = 1;
         collectedMoney = 0;
         wave++;
+        saveGame();
         timer = 0;
         pause = true;
         menuOpen = true;
@@ -633,8 +682,11 @@ function BuildRightMenu(menuId) {
     if (inventoryIterable[menuPointer - 1] instanceof ItemCountable || inventoryIterable[menuPointer - 1] instanceof AbilityCountable) {
       RightMenuElement.innerHTML +=
         "<h1 class='itemDisplay'>Owned: " +
-        Items[menuPointer - 1].count +
+        Items[inventoryIterable[menuPointer - 1].id].count +
         "</h1><br>";
+    }
+    if (inventoryIterable[menuPointer - 1] instanceof Medalion){
+      RightMenuElement.innerHTML += "<h1 class='itemDisplay'>Slot cost: " + Items[inventoryIterable[menuPointer - 1].id].takenSlots + "</h1><br>";
     }
   }
   if (menuId == 9) {
@@ -1065,6 +1117,7 @@ LeftMenuElement.appendChild(menuChoices[1][1]);
         if (settings.sound) {
           sounds.buy[RandomInt(0,sounds.buy.length -1)].play();
         }
+        saveGame();
         BuildRightMenu(8);
         BuildMenu();
       });
